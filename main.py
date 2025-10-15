@@ -17,7 +17,7 @@ from app.menus.purchase import purchase_by_family, purchase_loop
 from app.menus.donate import show_donate_menu
 from app.menus.theme import show_theme_menu
 from app.config.theme_config import get_theme
-from app.menus.util_helper import get_rupiah
+from app.menus.util_helper import get_rupiah, print_panel
 
 from rich.console import Console
 from rich.table import Table

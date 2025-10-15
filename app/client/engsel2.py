@@ -17,7 +17,6 @@ def get_pending_transaction(api_key: str, tokens: dict) -> dict:
 
     return res.get("data")
 
-
 def get_transaction_history(api_key: str, tokens: dict) -> dict:
     path = "payments/api/v8/transaction-history"
     raw_payload = {
@@ -30,7 +29,6 @@ def get_transaction_history(api_key: str, tokens: dict) -> dict:
         res = send_api_request(api_key, path, raw_payload, tokens["id_token"], "POST")
 
     return res.get("data")
-
 
 def get_tiering_info(api_key: str, tokens: dict) -> dict:
     path = "gamification/api/v8/loyalties/tiering/info"
@@ -47,15 +45,7 @@ def get_tiering_info(api_key: str, tokens: dict) -> dict:
         return res.get("data", {})
     return {}
 
-import json
-from app.client.engsel import send_api_request
-from app.menus.util_helper import live_loading
-from app.config.theme_config import get_theme
-
 def segments(api_key: str, id_token: str, access_token: str, balance: int = 0) -> dict | None:
-    """
-    Mengambil data segmentasi pengguna: loyalty, notifikasi, dan paket spesial (SFY).
-    """
     path = "dashboard/api/v8/segments"
     payload = {
         "access_token": access_token,
@@ -83,17 +73,14 @@ def segments(api_key: str, id_token: str, access_token: str, balance: int = 0) -
 
     data = res["data"]
 
-    # Loyalty
     loyalty_data = data.get("loyalty", {}).get("data", {})
     loyalty_info = {
         "current_point": loyalty_data.get("current_point", 0),
         "tier_name": loyalty_data.get("detail_tier", {}).get("name", "")
     }
 
-    # Notification
     notifications = data.get("notification", {}).get("data", [])
 
-    # Special For You
     sfy_data = data.get("special_for_you", {}).get("data", {})
     sfy_banners = sfy_data.get("banners", [])
     special_packages = []

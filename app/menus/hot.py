@@ -354,17 +354,17 @@ def show_hot_menu2():
                     konfirmasi_text = Text()
                     konfirmasi_text.append("⚠️ Pastikan sisa balance KURANG DARI\n", style=theme["text_err"])
                     konfirmasi_text.append(f"Harga paket: Rp {harga_rp}\n", style=theme["text_money"])
-                    konfirmasi_text.append("Lanjutkan pembelian?", style=theme["text_body"])
+                    #konfirmasi_text.append("Lanjutkan pembelian?", style=theme["text_body"])
 
                     console.print(Panel(
                         Align.center(konfirmasi_text),
                         title=f"[{theme['text_title']}]Konfirmasi Pembelian[/]",
                         border_style=theme["border_warning"],
-                        padding=(1, 2),
+                        padding=(0, 2),
                         expand=True
                     ))
 
-                    confirm = console.input(f"[{theme['text_sub']}]Ketik 'y' untuk lanjut, atau lainnya untuk batal:[/{theme['text_sub']}] ").strip().lower()
+                    confirm = console.input(f"[{theme['text_sub']}]Apakah anda yakin ingin melanjutkan pembelian? (y/n):[/{theme['text_sub']}] ").strip().lower()
                     if confirm != "y":
                         print_panel("ℹ️ Info", "Pembelian dibatalkan oleh pengguna.")
                         pause()

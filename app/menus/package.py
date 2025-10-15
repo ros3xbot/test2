@@ -1,20 +1,28 @@
 import json
 import sys
-
 import requests
-
-from app.client.balance import settlement_balance
-from app.client.encrypt import BASE_CRYPTO_URL
-from app.client.engsel import get_family, get_package, get_addons, get_package_details, send_api_request
-from app.client.ewallet import show_multipayment
-from app.client.purchase import settlement_bounty, settlement_loyalty
-from app.client.qris import show_qris_payment
-from app.menus.purchase import purchase_n_times
-from app.menus.util import clear_screen, pause, display_html
 from app.service.auth import AuthInstance
+from app.client.engsel import get_family, get_package, get_addons, get_package_details, send_api_request
 from app.service.bookmark import BookmarkInstance
+from app.client.purchase import settlement_bounty, settlement_loyalty
+from app.menus.util import clear_screen, pause, display_html
+from app.menus.util_helper import print_panel, get_rupiah, live_loading
+from app.client.qris import show_qris_payment
+from app.client.ewallet import show_multipayment
+from app.client.balance import settlement_balance
 from app.type_dict import PaymentItem
+from app.config.theme_config import get_theme
 
+from rich.console import Console,Group
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich.layout import Layout
+from rich.box import MINIMAL_DOUBLE_HEAD
+from rich.align import Align
+from rich.markup import escape
+
+console = Console()
 
 def show_package_details(api_key, tokens, package_option_code, is_enterprise, option_order=-1):
     clear_screen()

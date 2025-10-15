@@ -9,7 +9,7 @@ from rich.table import Table
 from rich.align import Align
 from rich.box import MINIMAL_DOUBLE_HEAD
 
-from app.menus.util import clear_screen, pause
+from app.menus.util import pause
 from app.client.engsel import get_balance, get_profile, get_package
 from app.client.engsel2 import get_tiering_info
 from app.menus.payment import show_transaction_history
@@ -20,7 +20,7 @@ from app.menus.package import fetch_my_packages, get_packages_by_family
 from app.menus.hot import show_hot_menu, show_hot_menu2
 from app.service.sentry import enter_sentry_mode
 from app.menus.purchase import purchase_by_family, purchase_loop
-from app.menus.util_helper import get_rupiah
+from app.menus.util_helper import clear_screen, get_rupiah
 #from app.menus.donate import show_donate_menu
 from app.menus.theme import show_theme_menu
 from app.config.theme_config import get_theme

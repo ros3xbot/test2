@@ -14,7 +14,7 @@ from rich.text import Text
 from rich.panel import Panel
 from rich.table import Table
 from rich.console import Console
-
+from app.menus.util_helper import print_panel
 
 console = Console()
 theme = get_theme()

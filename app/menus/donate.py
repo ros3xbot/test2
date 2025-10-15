@@ -10,6 +10,7 @@ from app.config.theme_config import get_theme
 
 console = Console()
 
+
 def generate_qr_ascii(data: str) -> str:
     qr = qrcode.QRCode(border=1)
     qr.add_data(data)

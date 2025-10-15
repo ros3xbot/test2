@@ -83,7 +83,7 @@ def show_main_menu(profile):
     menu_table.add_row("4", "🔥 Beli Paket HOT-2")
     menu_table.add_row("5", "🔍 Beli Paket Berdasarkan Family Code")
     menu_table.add_row("6", "📜 Riwayat Transaksi")
-    menu_table.add_row("7", "🧪 [Test] Purchase all packages in family code")
+    menu_table.add_row("7", "🧪 Purchase all packages in family code")
     menu_table.add_row("8", "🔁 Order berulang by Family Code")
     menu_table.add_row("00", "⭐ Bookmark Paket")
     menu_table.add_row("99", f"[{theme['text_err']}]⛔ Tutup aplikasi [/]")

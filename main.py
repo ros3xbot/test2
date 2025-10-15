@@ -282,20 +282,21 @@ def main():
 
                 purchase_by_family(family_code, use_decoy, pause_on_success)
 
-
-            #case "10":
-            #    family_code = input("Enter family code (or '99' to cancel): ")
-            #    if family_code == "99":
-            #        continue
-            #    use_decoy = input("Use decoy package? (y/n): ").lower() == 'y'
-            #    pause_on_success = input("Pause on each successful purchase? (y/n): ").lower() == 'y'
-            #    purchase_by_family(family_code, use_decoy, pause_on_success)
+            case "9":
+                 family_code = input("Masukkan Family Code: ").strip()
+                if family_code != "99":
+                    use_decoy = input("Gunakan decoy? (y/n): ").strip().lower() == 'y'
+                    try:
+                        order = int(input("Urutan dari list Family Code: ").strip())
+                        delay = input("Delay (detik): ").strip()
+                        how_many = int(input("Berapa kali ulang: ").strip())
+                        purchase_loop(how_many, family_code, order, use_decoy, 0 if delay == "" else int(delay))
+                    except ValueError:
+                        print_panel("⚠️ Error", "Input angka tidak valid.")
+                        pause()
 
             case "00":
                 show_bookmark_menu()
-
-            case "11":
-                show_circle_menu()
 
             case "77":
                 show_donate_menu()

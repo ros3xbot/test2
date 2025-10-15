@@ -282,7 +282,7 @@ def main():
 
                 purchase_by_family(family_code, use_decoy, pause_on_success)
 
-            case "9":
+            case "11":
                 family_code = input("Masukkan Family Code: ").strip()
                 if family_code != "99":
                     use_decoy = input("Gunakan decoy? (y/n): ").strip().lower() == 'y'

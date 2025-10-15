@@ -325,9 +325,9 @@ def show_hot_menu2():
         console.print(Panel(
             f"[bold]{selected_package['name']}[/]\n\n"
             f"Harga: Rp [bold {theme['text_money']}]{get_rupiah(selected_package['price'])}[/]\n\n"
-            f"[{theme['text_body']}]Detail:[/]\n" +
+            f"[{theme['text_sub']}]Detail:[/]\n" +
             "\n".join([
-                f"[{theme['text_sub']}]• {line.strip()}[/{theme['text_sub']}]"
+                f"[{theme['text_body']}]• {line.strip()}[/{theme['text_body']}]"
                 for line in selected_package.get("detail", "").split("\n")
                 if line.strip()
             ]),

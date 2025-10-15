@@ -3,28 +3,28 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import sys
-from datetime import datetime
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.align import Align
-from rich.box import MINIMAL_DOUBLE_HEAD
-
 from app.menus.util import clear_screen, pause
-from app.service.auth import AuthInstance
-from app.client.engsel import get_balance, get_profile
+from app.client.engsel import *
 from app.client.engsel2 import get_tiering_info
+from app.menus.payment import show_transaction_history
+from app.service.auth import AuthInstance
+from app.menus.bookmark import show_bookmark_menu
 from app.menus.account import show_account_menu
 from app.menus.package import fetch_my_packages, get_packages_by_family
 from app.menus.hot import show_hot_menu, show_hot_menu2
-from app.menus.payment import show_transaction_history
-from app.menus.bookmark import show_bookmark_menu
-from app.menus.purchase import purchase_by_family, purchase_loop
 from app.service.sentry import enter_sentry_mode
+from app.menus.purchase import purchase_by_family, purchase_loop
 from app.menus.donate import show_donate_menu
 from app.menus.theme import show_theme_menu
 from app.config.theme_config import get_theme
 from app.menus.util_helper import get_theme, get_rupiah
+
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.box import MINIMAL_DOUBLE_HEAD
+from rich.align import Align
+from rich.text import Text
 
 console = Console()
 theme = get_theme()

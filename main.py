@@ -44,6 +44,8 @@ def build_profile():
     balance = get_balance(api_key, tokens["id_token"])
     profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
 
+    balance_remaining = balance_data.get("remaining", 0)
+
     sub_type = profile_data["profile"].get("subscription_type", "-")
     sub_id = profile_data["profile"].get("subscriber_id", "-")
 

@@ -1,5 +1,5 @@
 import app.menus.banner as banner
-ascii_art = banner.load("https://me.mashu.lol/mebanner880.png", globals())
+#ascii_art = banner.load("https://me.mashu.lol/mebanner880.png", globals())
 ascii_art = banner.load("https://d17e22l2uh4h4n.cloudfront.net/corpweb/pub-xlaxiata/2019-03/xl-logo.png", globals())
 import requests
 from html.parser import HTMLParser
@@ -20,7 +20,7 @@ console = Console()
 def print_banner():
     theme = get_theme()
     banner_text = Align.center(
-        "[bold]myXL CLI v8.8.0 gen.1[/]",
+        "[bold]myXL CLI v8.8.0 gen.Z[/]",
         vertical="middle"
     )
     console.print(Panel(

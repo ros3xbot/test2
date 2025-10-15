@@ -12,6 +12,7 @@ from rich.align import Align
 
 console = Console()
 
+
 def fetch_special_for_you(api_key: str, id_token: str, access_token: str, balance: int = 0) -> list:
     try:
         seg_data = segments(api_key, id_token, access_token, balance)
@@ -66,7 +67,6 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
             pause()
             return
 
-        # Panel informasi di atas tabel
         info_text = Align.center(
             f"[{theme['text_body']}]🔥 Daftar Paket Special For You 🔥[/{theme['text_body']}]"
         )
@@ -78,7 +78,6 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
             expand=True
         ))
 
-        # Tabel daftar paket
         table = Table(box=MINIMAL_DOUBLE_HEAD, expand=True)
         table.add_column("No", justify="right", style=theme["text_key"], width=4)
         table.add_column("Nama Paket", style=theme["text_body"])
@@ -90,7 +89,6 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
             emoji_diskon = "💸" if pkg.get("diskon_percent", 0) >= 50 else ""
             emoji_kuota = "🔥" if pkg.get("kuota_gb", 0) >= 100 else ""
 
-            # Konversi harga ke format rupiah
             try:
                 original_int = int(str(pkg.get("original_price", "0")).replace("Rp", "").replace(".", "").replace(",", "").strip())
                 diskon_int = int(str(pkg.get("diskon_price", "0")).replace("Rp", "").replace(".", "").replace(",", "").strip())
@@ -111,12 +109,10 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
 
         console.print(Panel(table, border_style=theme["border_primary"], padding=(0, 0), expand=True))
 
-        # Panel navigasi
         nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav_table.add_column(justify="right", style=theme["text_key"], width=6)
         nav_table.add_column(style=theme["text_body"])
         nav_table.add_row("00", f"[{theme['text_sub']}]Kembali ke menu sebelumnya[/]")
-        #nav_table.add_row("99", f"[{theme['text_sub']}]Kembali ke menu utama[/]")
 
         console.print(Panel(
             nav_table,
@@ -125,7 +121,6 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
             expand=True
         ))
 
-        # Input pilihan
         choice = console.input(f"[{theme['text_sub']}]Pilih paket (nomor):[/{theme['text_sub']}] ").strip()
 
         if choice == "99":
@@ -148,7 +143,6 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
 
             if result == "MAIN":
                 return "MAIN"
-            # jika "BACK", kita tetap di loop dan tampilkan daftar lagi
         else:
             print_panel("⚠️ Error", "Nomor paket tidak valid.")
             pause()

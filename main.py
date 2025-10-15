@@ -20,7 +20,7 @@ from app.menus.package import fetch_my_packages, get_packages_by_family
 from app.menus.hot import show_hot_menu, show_hot_menu2
 from app.service.sentry import enter_sentry_mode
 from app.menus.purchase import purchase_by_family, purchase_loop
-from app.menus.util_helper import clear_screen, get_rupiah
+from app.menus.util_helper import clear_screen, get_rupiah, print_panel
 from app.menus.donate import show_donate_menu
 from app.menus.bundle import show_bundle_menu
 from app.menus.points import run_point_exchange

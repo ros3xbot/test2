@@ -326,7 +326,11 @@ def show_hot_menu2():
             f"[bold]{selected_package['name']}[/]\n\n"
             f"Harga: Rp [bold {theme['text_money']}]{get_rupiah(selected_package['price'])}[/]\n\n"
             f"[{theme['text_body']}]Detail:[/]\n" +
-            "\n".join([f"- {line.strip()}" for line in selected_package.get("detail", "").split("\n") if line.strip()]),
+            "\n".join([
+                f"[{theme['text_sub']}]• {line.strip()}[/{theme['text_sub']}]"
+                for line in selected_package.get("detail", "").split("\n")
+                if line.strip()
+            ]),
             title=f"[{theme['text_title']}]📦 Detail Paket[/]",
             border_style=theme["border_info"],
             padding=(1, 2),

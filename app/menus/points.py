@@ -16,6 +16,7 @@ import requests, json, uuid
 console = Console()
 theme = get_theme()
 
+
 def run_point_exchange(tokens: dict):
     theme = get_theme()
     while True:
@@ -68,7 +69,6 @@ def run_point_exchange_once(tokens: dict):
         return "BACK"
 
     item = catalog[int(choice) - 1]
-    #detail = fetch_detail(api_key, id_token, item["code
     with live_loading("Mengambil detail reward...", theme):
         detail = fetch_detail(api_key, id_token, item["code"])
     if not detail:
@@ -170,7 +170,6 @@ def fetch_catalog(api_key, id_token):
     theme = get_theme()
     path = "gamification/api/v8/loyalties/tiering/rewards-catalog"
     payload = {"is_enterprise": False, "lang": "id"}
-    #res = send_api_request(api_key, path, payload, id_token)
     with live_loading("Memuat katalog reward...", theme):
         res = send_api_request(api_key, path, payload, id_token)
 

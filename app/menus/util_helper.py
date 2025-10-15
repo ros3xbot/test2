@@ -17,6 +17,7 @@ from app.config.theme_config import get_theme
 
 console = Console()
 
+
 def print_banner():
     theme = get_theme()
     banner_text = Align.center(

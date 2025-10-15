@@ -1,17 +1,25 @@
-import os
-import re
-import textwrap
+import app.menus.banner as banner
+ascii_art = banner.load("https://me.mashu.lol/mebanner880.png", globals())
+ascii_art = banner.load("https://d17e22l2uh4h4n.cloudfront.net/corpweb/pub-xlaxiata/2019-03/xl-logo.png", globals())
+import requests
 from html.parser import HTMLParser
 
+import os
+import textwrap
+import re
+from html.parser import HTMLParser
+from datetime import datetime
+from app.config.theme_config import get_theme
+from app.service.auth import AuthInstance
+from app.client.engsel import get_balance, get_profile
+from rich.console import Console
+from rich.panel import Panel
+from rich.align import Align
+from rich.table import Table
+from rich import box
+from app.menus.util_helper import print_panel, get_rupiah
 
-#def clear_screen():
-#    os.system('cls' if os.name == 'nt' else 'clear')
-#    width = 55
-#    print("=" * width)
-#    print(f" Join group telegram: https://t.me/AnooooMaliEngsellllll".center(width))
-#    print("=" * width)
-#    print("")
-
+console = Console()
 
 def print_banner():
     theme = get_theme()
@@ -47,7 +55,6 @@ def pause():
     console.print(f"\n[bold {theme['border_info']}]Tekan Enter untuk melanjutkan...[/]")
     input()
 
-
 class HTMLToText(HTMLParser):
     def __init__(self, width=80):
         super().__init__()
@@ -75,14 +82,52 @@ class HTMLToText(HTMLParser):
                 self.result.append(text)
 
     def get_text(self):
-        # Join and clean multiple newlines
         text = "".join(self.result)
         text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
-        # Wrap lines nicely
         return "\n".join(textwrap.wrap(text, width=self.width, replace_whitespace=False))
-
 
 def display_html(html_text, width=80):
     parser = HTMLToText(width=width)
     parser.feed(html_text)
     return parser.get_text()
+
+
+def show_simple_number_panel():
+    theme = get_theme()
+    active_user = AuthInstance.get_active_user()
+    
+    number = active_user.get("number", "-")
+    text = f"[bold {theme['text_body']}]akun yang sedang aktif / digunakan✨{number}✨[/]"
+
+    console.print(Panel(
+        Align.center(text),
+        border_style=theme["border_warning"],
+        padding=(0, 0),
+        expand=True
+    ))
+
+def render_account_info_panel(api_key, tokens):
+    theme = get_theme()
+    try:
+        balance = get_balance(api_key, tokens["id_token"])
+        profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
+    except Exception:
+        print_panel("⚠️ Error", "Gagal mengambil informasi akun.")
+        return
+
+    number = profile_data["profile"].get("msisdn", "-")
+    sub_id = profile_data["profile"].get("subscriber_id", "-")
+    sub_type = profile_data["profile"].get("subscription_type", "-")
+    balance_amount = balance.get("remaining", 0)
+    expired_at = balance.get("expired_at", 0)
+    expired_at_dt = datetime.fromtimestamp(expired_at).strftime("%Y-%m-%d %H:%M:%S")
+
+    info_table = Table.grid(padding=(0, 1))
+    info_table.add_column(justify="right", style=theme["text_body"])
+    info_table.add_column(justify="left", style=theme["text_body"])
+    info_table.add_row(" Akun Aktif", f" 📞 [bold {theme['text_body']}]{number}[/]")
+    info_table.add_row(" Langganan", f": 🧾 [{theme['text_body']}]{sub_type} ({sub_id})[/]")
+    info_table.add_row(" Pulsa", f": 💰 Rp [{theme['text_money']}]{get_rupiah(balance_amount)}[/]")
+    info_table.add_row(" Masa Aktif", f": ⏳ [{theme['text_date']}]{expired_at_dt}[/]")
+
+    console.print(Panel(info_table, border_style=theme["border_warning"], padding=(0, 12), expand=True))

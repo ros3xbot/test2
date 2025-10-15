@@ -5,8 +5,8 @@ from rich.align import Align
 from rich.box import MINIMAL_DOUBLE_HEAD
 
 from app.config.theme_config import get_theme, get_all_presets, set_theme
-from app.menus.util import clear_screen, pause, print_panel
-
+from app.menus.util import clear_screen, pause
+from app.menus.util_helper import print_panel
 console = Console()
 
 def show_theme_menu():

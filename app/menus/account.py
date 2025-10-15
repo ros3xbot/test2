@@ -2,6 +2,7 @@ from app.client.engsel import get_otp, submit_otp
 from app.menus.util import clear_screen, pause
 from app.service.auth import AuthInstance
 
+
 def show_login_menu():
     clear_screen()
     print("-------------------------------------------------------")
@@ -11,7 +12,8 @@ def show_login_menu():
     print("2. Submit OTP")
     print("99. Tutup aplikasi")
     print("-------------------------------------------------------")
-    
+
+
 def login_prompt(api_key: str):
     clear_screen()
     print("-------------------------------------------------------")
@@ -29,33 +31,34 @@ def login_prompt(api_key: str):
         if not subscriber_id:
             return None
         print("OTP Berhasil dikirim ke nomor Anda.")
-        
+
         otp = input("Masukkan OTP yang telah dikirim: ")
         if not otp.isdigit() or len(otp) != 6:
             print("OTP tidak valid. Pastikan OTP terdiri dari 6 digit angka.")
             pause()
             return None
-        
+
         tokens = submit_otp(api_key, phone_number, otp)
         if not tokens:
             print("Gagal login. Periksa OTP dan coba lagi.")
             pause()
             return None
-        
+
         print("Berhasil login!")
-        
+
         return phone_number, tokens["refresh_token"]
     except Exception as e:
         return None, None
+
 
 def show_account_menu():
     clear_screen()
     AuthInstance.load_tokens()
     users = AuthInstance.refresh_tokens
     active_user = AuthInstance.get_active_user()
-    
+
     # print(f"users: {users}")
-    
+
     in_account_menu = True
     add_user = False
     while in_account_menu:
@@ -67,17 +70,16 @@ def show_account_menu():
                 print("Gagal menambah akun. Silahkan coba lagi.")
                 pause()
                 continue
-            
+
             AuthInstance.add_refresh_token(int(number), refresh_token)
             AuthInstance.load_tokens()
             users = AuthInstance.refresh_tokens
             active_user = AuthInstance.get_active_user()
-            
-            
+
             if add_user:
                 add_user = False
             continue
-        
+
         print("Akun Tersimpan:")
         if not users or len(users) == 0:
             print("Tidak ada akun tersimpan.")
@@ -86,7 +88,7 @@ def show_account_menu():
             is_active = active_user and user["number"] == active_user["number"]
             active_marker = " (Aktif)" if is_active else ""
             print(f"{idx + 1}. {user['number']}{active_marker}")
-        
+
         print("Command:")
         print("0: Tambah Akun")
         print("00: Kembali ke menu utama")

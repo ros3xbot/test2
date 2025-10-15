@@ -1,8 +1,8 @@
-import app.menus.banner as banner
-from html.parser import HTMLParser
 import os
 import re
 import textwrap
+from html.parser import HTMLParser
+
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -11,10 +11,11 @@ def clear_screen():
     print(f" Join group telegram: https://t.me/AnooooMaliEngsellllll".center(width))
     print("=" * width)
     print("")
-        
+
 
 def pause():
     input("\nPress enter to continue...")
+
 
 class HTMLToText(HTMLParser):
     def __init__(self, width=80):
@@ -48,6 +49,7 @@ class HTMLToText(HTMLParser):
         text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
         # Wrap lines nicely
         return "\n".join(textwrap.wrap(text, width=self.width, replace_whitespace=False))
+
 
 def display_html(html_text, width=80):
     parser = HTMLToText(width=width)

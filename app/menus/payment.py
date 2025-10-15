@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
-from app.client.engsel2 import get_pending_transaction, get_transaction_history
+from app.client.engsel2 import get_transaction_history
 from app.menus.util import clear_screen
+
 
 def show_transaction_history(api_key, tokens):
     in_transaction_menu = True
@@ -20,10 +21,10 @@ def show_transaction_history(api_key, tokens):
         except Exception as e:
             print(f"Gagal mengambil riwayat transaksi: {e}")
             history = []
-        
+
         if len(history) == 0:
             print("Tidak ada riwayat transaksi.")
-        
+
         for idx, transaction in enumerate(history, start=1):
             transaction_timestamp = transaction.get("timestamp", 0)
             dt = datetime.fromtimestamp(transaction_timestamp)

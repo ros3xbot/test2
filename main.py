@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 
 import sys
 from app.menus.util import clear_screen, pause
@@ -16,6 +16,7 @@ from app.service.sentry import enter_sentry_mode
 from app.menus.purchase import purchase_by_family, purchase_loop
 
 WIDTH = 55
+
 
 def show_main_menu(profile):
     clear_screen()
@@ -38,9 +39,11 @@ def show_main_menu(profile):
     print("99. Tutup aplikasi")
     print("-------------------------------------------------------")
 
+
 show_menu = True
+
+
 def main():
-    
     while True:
         active_user = AuthInstance.get_active_user()
 
@@ -49,19 +52,20 @@ def main():
             balance = get_balance(AuthInstance.api_key, active_user["tokens"]["id_token"])
             balance_remaining = balance.get("remaining")
             balance_expired_at = balance.get("expired_at")
-            
-            profile_data = get_profile(AuthInstance.api_key, active_user["tokens"]["access_token"], active_user["tokens"]["id_token"])
+
+            profile_data = get_profile(AuthInstance.api_key, active_user["tokens"]["access_token"],
+                                       active_user["tokens"]["id_token"])
             sub_id = profile_data["profile"]["subscriber_id"]
             sub_type = profile_data["profile"]["subscription_type"]
-            
+
             point_info = "Points: N/A | Tier: N/A"
-            
+
             if sub_type == "PREPAID":
                 tiering_data = get_tiering_info(AuthInstance.api_key, active_user["tokens"])
                 tier = tiering_data.get("tier", 0)
                 current_point = tiering_data.get("current_point", 0)
                 point_info = f"Points: {current_point} | Tier: {tier}"
-            
+
             profile = {
                 "number": active_user["number"],
                 "subscriber_id": sub_id,
@@ -111,9 +115,7 @@ def main():
                 delay = input("Delay (sec): ")
                 how_many = int(input("How many repeat: "))
 
-                for _ in range(how_many):
-                    purchase_loop(family_code, order, use_decoy, 0 if delay == "" else int(delay))
-                input("ENTER KE MENU")
+                purchase_loop(how_many, family_code, order, use_decoy, 0 if delay == "" else int(delay))
             elif choice == "00":
                 show_bookmark_menu()
             elif choice == "99":
@@ -141,6 +143,7 @@ def main():
             else:
                 print("No user selected or failed to load user.")
 
+
 if __name__ == "__main__":
     try:
         main()
@@ -148,4 +151,3 @@ if __name__ == "__main__":
         print("\nExiting the application.")
     # except Exception as e:
     #     print(f"An error occurred: {e}")
-

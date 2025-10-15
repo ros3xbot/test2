@@ -11,7 +11,7 @@ from rich.box import MINIMAL_DOUBLE_HEAD
 
 from app.menus.util import pause
 from app.client.engsel import get_balance, get_profile, get_package
-from app.client.engsel2 import get_tiering_info
+from app.client.engsel2 import get_tiering_info, segments
 from app.menus.payment import show_transaction_history
 from app.service.auth import AuthInstance
 from app.menus.bookmark import show_bookmark_menu

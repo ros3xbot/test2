@@ -1,10 +1,16 @@
 from dotenv import load_dotenv
-
 load_dotenv()
 
 import sys
+from datetime import datetime
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.align import Align
+from rich.box import MINIMAL_DOUBLE_HEAD
+
 from app.menus.util import clear_screen, pause
-from app.client.engsel import *
+from app.client.engsel import get_balance, get_profile, get_package
 from app.client.engsel2 import get_tiering_info
 from app.menus.payment import show_transaction_history
 from app.service.auth import AuthInstance
@@ -14,17 +20,10 @@ from app.menus.package import fetch_my_packages, get_packages_by_family
 from app.menus.hot import show_hot_menu, show_hot_menu2
 from app.service.sentry import enter_sentry_mode
 from app.menus.purchase import purchase_by_family, purchase_loop
-from app.menus.donate import show_donate_menu
+from app.menus.util_helper import get_rupiah
+#from app.menus.donate import show_donate_menu
 from app.menus.theme import show_theme_menu
 from app.config.theme_config import get_theme
-from app.menus.util_helper import get_rupiah, print_panel
-
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
-from rich.box import MINIMAL_DOUBLE_HEAD
-from rich.align import Align
-from rich.text import Text
 
 console = Console()
 theme = get_theme()
@@ -87,13 +86,11 @@ def show_main_menu(profile):
     menu_table.add_row("7", "🧪 [Test] Purchase all packages in family code")
     menu_table.add_row("8", "🔁 Order berulang by Family Code")
     menu_table.add_row("00", "⭐ Bookmark Paket")
-    menu_table.add_row("77", f"[{theme['border_warning']}]📢 Info Unlock Code [/]")  
-    menu_table.add_row("88", f"[{theme['text_sub']}]🎨 Ganti Tema CLI [/]")          
     menu_table.add_row("99", f"[{theme['text_err']}]⛔ Tutup aplikasi [/]")
 
     console.print(Panel(menu_table, title=f"[{theme['text_title']}]✨ Menu Utama ✨[/]", title_align="center", border_style=theme["border_primary"], padding=(0, 1), expand=True))
 
-def handle_menu_choice(choice, profile):
+def handle_choice(choice, profile):
     tokens = AuthInstance.get_active_user()["tokens"]
     api_key = AuthInstance.api_key
 
@@ -131,28 +128,39 @@ def handle_menu_choice(choice, profile):
             purchase_loop(how_many, family_code, order, use_decoy, 0 if delay == "" else int(delay))
     elif choice == "00":
         show_bookmark_menu()
-    elif choice == "77":
-        show_donate_menu()
-    elif choice == "88":
-        show_theme_menu()
     elif choice == "99":
         console.print("Menutup aplikasi...", style=theme["text_err"])
-        exit(0)
+        sys.exit(0)
+    elif choice == "t":
+        res = get_package(api_key, tokens, "")
+        console.print(res)
+        input("Tekan Enter untuk lanjut...")
+    elif choice == "s":
+        enter_sentry_mode()
     else:
         console.print("Pilihan tidak valid.", style=theme["text_err"])
         pause()
 
-def run_main_menu():
+def main():
     while True:
         active_user = AuthInstance.get_active_user()
         if active_user:
             profile = build_profile()
-            show_main_menu(profile)
-            choice = input("Pilih menu: ")
-            handle_menu_choice(choice, profile)
+            if profile:
+                show_main_menu(profile)
+                choice = input("Pilih menu: ")
+                handle_choice(choice, profile)
+            else:
+                console.print("Gagal membangun profil.", style=theme["text_err"])
         else:
             selected_user_number = show_account_menu()
             if selected_user_number:
                 AuthInstance.set_active_user(selected_user_number)
             else:
                 console.print("Tidak ada user dipilih atau gagal load.", style=theme["text_err"])
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\nMenutup aplikasi...", style=theme["text_err"])

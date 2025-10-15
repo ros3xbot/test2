@@ -25,6 +25,7 @@ console = Console()
 
 CACHE_FILE = "family_cache.json"
 
+
 def load_family_cache():
     if os.path.exists(CACHE_FILE):
         with open(CACHE_FILE, "r", encoding="utf-8") as f:
@@ -34,6 +35,7 @@ def load_family_cache():
 def save_family_cache(cache):
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
+
 
 def show_hot_main_menu():
     theme = get_theme()
@@ -85,6 +87,7 @@ def refresh_family_data(family_code, is_enterprise, api_key, tokens, cache):
     if validate_family_data(data):
         cache[(family_code, is_enterprise)] = data
     return data
+
 
 def show_hot_menu():
     theme = get_theme()
@@ -214,7 +217,6 @@ def show_hot_menu():
         else:
             print_panel("⚠️ Error", "Input tidak valid. Silakan masukkan nomor yang tersedia.")
             pause()
-
 
 def validate_package_detail(detail):
     return (

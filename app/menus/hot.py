@@ -181,8 +181,6 @@ def show_hot_menu():
 
         choice = console.input(f"[{theme['text_sub']}]Pilih paket:[/{theme['text_sub']}] ").strip()
         if choice == "00":
-            #print_panel("ℹ️ Info", "Kembali ke menu utama...")
-            #pause()
             return
 
         elif choice == "99":
@@ -380,7 +378,7 @@ def show_hot_menu2():
 
                     confirm = console.input(f"[{theme['text_sub']}]Apakah anda yakin ingin melanjutkan pembelian? (y/n):[/{theme['text_sub']}] ").strip().lower()
                     if confirm != "y":
-                        print_panel("ℹ️ Info", "Pembelian dibatalkan oleh pengguna.")
+                        print_panel("Info", "Pembelian dibatalkan oleh pengguna.")
                         pause()
                         break
 

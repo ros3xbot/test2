@@ -54,6 +54,8 @@ def build_profile():
         current_point = tiering_data.get("current_point", 0)
         point_info = f"Points: {current_point} | Tier: {tier}"
 
+    segments_data = segments(api_key, id_token, access_token, balance_remaining) or {}
+
     return {
         "number": active_user["number"],
         "subscriber_id": sub_id,

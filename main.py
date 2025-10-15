@@ -42,11 +42,15 @@ def build_profile():
 
     api_key = AuthInstance.api_key
 
+    print("Fetching balance...")
     balance = get_balance(api_key, tokens["id_token"])
+
+    print("Fetching profile...")
     profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
 
     balance_remaining = balance.get("remaining", 0)
 
+    print("Fetching tiering info...")
     sub_type = profile_data["profile"].get("subscription_type", "-")
     sub_id = profile_data["profile"].get("subscriber_id", "-")
 
@@ -57,7 +61,7 @@ def build_profile():
         current_point = tiering_data.get("current_point", 0)
         point_info = f"Points: {current_point} | Tier: {tier}"
 
-    segments_data = segments(balance_remaining) or {}
+    segments_data = segments(balance_remaining, tokens["id_token"], tokens["access_token"]) or {}
 
     return {
         "number": AuthInstance.get_active_user()["number"],
@@ -68,6 +72,7 @@ def build_profile():
         "point_info": point_info,
         "segments": segments_data
     }
+
 
 
 def show_main_menu(profile):

@@ -16,6 +16,7 @@ from app.config.theme_config import get_theme
 console = Console()
 FAMILY_FILE = os.path.abspath("family_codes.json")
 
+
 def ensure_family_file():
     default_data = {"codes": []}
     if not os.path.exists(FAMILY_FILE):

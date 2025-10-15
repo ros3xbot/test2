@@ -13,7 +13,7 @@ from app.config.theme_config import get_theme
 from rich.text import Text
 from rich.panel import Panel
 from rich.table import Table
-from random import randint
+from rich.console import Console
 
 
 console = Console()

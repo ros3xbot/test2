@@ -193,17 +193,17 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, overwrite_amount, token_confirmation_idx=-1)
                 if res and res.get("status", "") != "SUCCESS":
                 error_msg = res.get("message", "")
-                if "Bizz-err.Amount.Total" in error_msg:
-                    error_msg_arr = error_msg.split("=")
-                    valid_amount = int(error_msg_arr[1].strip())
-                    print_panel("ℹ️ Info", f"Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}")
-                    res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
-                    if res and res.get("status", "") == "SUCCESS":
-                        print_panel("✅ Info", "Pembelian berhasil dengan jumlah yang disesuaikan.")
-                else:
-                    print_panel("✅ Info", "Pembelian berhasil.")
-            pause()
-            return True
+                    if "Bizz-err.Amount.Total" in error_msg:
+                        error_msg_arr = error_msg.split("=")
+                        valid_amount = int(error_msg_arr[1].strip())
+                        print_panel("ℹ️ Info", f"Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}")
+                        res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
+                        if res and res.get("status", "") == "SUCCESS":
+                            print_panel("✅ Info", "Pembelian berhasil dengan jumlah yang disesuaikan.")
+                    else:
+                        print_panel("✅ Info", "Pembelian berhasil.")
+                pause()
+                return True
 
         elif choice == "6":
             use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"

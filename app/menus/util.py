@@ -4,17 +4,48 @@ import textwrap
 from html.parser import HTMLParser
 
 
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    width = 55
-    print("=" * width)
-    print(f" Join group telegram: https://t.me/AnooooMaliEngsellllll".center(width))
-    print("=" * width)
-    print("")
+#def clear_screen():
+#    os.system('cls' if os.name == 'nt' else 'clear')
+#    width = 55
+#    print("=" * width)
+#    print(f" Join group telegram: https://t.me/AnooooMaliEngsellllll".center(width))
+#    print("=" * width)
+#    print("")
 
+
+def print_banner():
+    theme = get_theme()
+    banner_text = Align.center(
+        "[bold]myXL CLI v8.8.0 gen.1[/]",
+        vertical="middle"
+    )
+    console.print(Panel(
+        banner_text,
+        border_style=theme["border_primary"],
+        style=theme["text_title"],
+        padding=(1, 2),
+        expand=True
+    ))
+    show_simple_number_panel()
+
+def clear_sc():
+    print("Clearing screen...")
+    os.system('cls' if os.name == 'nt' else 'clear')
+    if ascii_art:
+        ascii_art.to_terminal(columns=55)
+    print_banner()
+
+def clear_screen():
+    print("Clearing screen...")
+    os.system('cls' if os.name == 'nt' else 'clear')
+    if ascii_art:
+        ascii_art.to_terminal(columns=55)
+    print_banner()
 
 def pause():
-    input("\nPress enter to continue...")
+    theme = get_theme()
+    console.print(f"\n[bold {theme['border_info']}]Tekan Enter untuk melanjutkan...[/]")
+    input()
 
 
 class HTMLToText(HTMLParser):

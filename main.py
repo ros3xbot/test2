@@ -44,7 +44,7 @@ def build_profile():
     balance = get_balance(api_key, tokens["id_token"])
     profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
 
-    balance_remaining = balance_data.get("remaining", 0)
+    balance_remaining = balance.get("remaining", 0)
 
     sub_type = profile_data["profile"].get("subscription_type", "-")
     sub_id = profile_data["profile"].get("subscriber_id", "-")
@@ -64,7 +64,8 @@ def build_profile():
         "subscription_type": sub_type,
         "balance": balance.get("remaining", 0),
         "balance_expired_at": balance.get("expired_at", 0),
-        "point_info": point_info
+        "point_info": point_info,
+        "segments": segments_data  # ✅ penting untuk paket spesial
     }
 
 def show_main_menu(profile):
@@ -73,6 +74,7 @@ def show_main_menu(profile):
     expired_at_dt = datetime.fromtimestamp(profile["balance_expired_at"]).strftime("%Y-%m-%d %H:%M:%S")
     pulsa_str = get_rupiah(profile["balance"])
 
+    # Panel Informasi Akun
     info_table = Table.grid(padding=(0, 1))
     info_table.add_column(justify="left", style=theme["text_body"])
     info_table.add_column(justify="left", style=theme["text_body"])
@@ -84,6 +86,7 @@ def show_main_menu(profile):
 
     console.print(Panel(info_table, title=f"[{theme['text_title']}]✨Informasi Akun✨[/]", title_align="center", border_style=theme["border_info"], padding=(1, 2), expand=True))
 
+    # Panel Menu Utama
     menu_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
     menu_table.add_column("Kode", justify="right", style=theme["text_key"], width=6)
     menu_table.add_column("Aksi", style=theme["text_body"])
@@ -106,9 +109,10 @@ def show_main_menu(profile):
 
     console.print(Panel(menu_table, title=f"[{theme['text_title']}]✨ Menu Utama ✨[/]", title_align="center", border_style=theme["border_primary"], padding=(0, 1), expand=True))
 
-    # Paket Spesial
-    special_packages = segments.get("special_packages", [])
+    # Panel Paket Spesial
+    special_packages = profile.get("segments", {}).get("special_packages", [])
     if special_packages:
+        import random
         best = random.choice(special_packages)
 
         name = best.get("name", "-")
@@ -126,20 +130,18 @@ def show_main_menu(profile):
             f"Rp[{theme['text_money']}]{get_rupiah(diskon_price)}[/{theme['text_money']}]"
         )
 
-
         panel_width = console.size.width
-        console.print(
-            Panel(
-                Align.center(special_text),
-                border_style=theme["border_warning"],
-                padding=(0, 2),
-                width=panel_width
-            )
-        )
+        console.print(Panel(
+            Align.center(special_text),
+            border_style=theme["border_warning"],
+            padding=(0, 2),
+            width=panel_width
+        ))
 
         console.print(Align.center(
             f"[{theme['text_sub']}]Pilih [S] untuk lihat semua paket spesial[/{theme['text_sub']}]"
         ))
+
 
 def handle_choice(choice, profile):
     theme = get_theme()

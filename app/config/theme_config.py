@@ -1,10 +1,8 @@
 import json
 import os
 
-# Path ke file konfigurasi tema
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "theme_config.json")
 
-# Kumpulan preset tema CLI
 THEMES = {
     "emerald_glass": {
         "border_primary": "#10B981",

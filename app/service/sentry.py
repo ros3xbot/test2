@@ -34,11 +34,10 @@ def enter_sentry_mode():
 
     stop_flag = {"stop": False}
 
-    # Background listener for "q"
     def listen_for_quit():
         while True:
             user_input = sys.stdin.readline()
-            if not user_input:  # Ignore empty input (prevents instant exit)
+            if not user_input:
                 continue
             if user_input.strip().lower() == "q":
                 stop_flag["stop"] = True

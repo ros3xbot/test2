@@ -36,24 +36,22 @@ theme = get_theme()
 def build_profile(verbose=True):
     tokens = AuthInstance.get_active_tokens()
     if not tokens:
-        print_panel("⚠️ Error", "Token pengguna aktif tidak ditemukan.")
-        pause()
+        if verbose:
+            print_panel("⚠️ Error", "Token pengguna aktif tidak ditemukan.")
+            pause()
         return None
 
     api_key = AuthInstance.api_key
 
-    if verbose:
-        print("Fetching balance...")
+    if verbose: print("Fetching balance...")
     balance = get_balance(api_key, tokens["id_token"])
 
-    if verbose:
-        print("Fetching profile...")
+    if verbose: print("Fetching profile...")
     profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
 
     balance_remaining = balance.get("remaining", 0)
 
-    if verbose:
-        print("Fetching tiering info...")
+    if verbose: print("Fetching tiering info...")
     sub_type = profile_data["profile"].get("subscription_type", "-")
     sub_id = profile_data["profile"].get("subscriber_id", "-")
 
@@ -75,6 +73,7 @@ def build_profile(verbose=True):
         "point_info": point_info,
         "segments": segments_data
     }
+
 
 def show_main_menu(profile):
     clear_screen()
@@ -230,7 +229,7 @@ def handle_choice(choice, profile):
     elif choice == "s":
         special_packages = profile.get("segments", {}).get("special_packages", [])
         if special_packages:
-            result = show_special_for_you_menu(tokens, special_packages)
+            result = show_special_for_you_menu(AuthInstance.get_active_tokens(), special_packages)
             if result in ("MAIN", "BACK"):
                 return
         else:
@@ -249,7 +248,7 @@ def main():
             if profile:
                 show_main_menu(profile)
                 choice = input("Pilih menu: ").strip().lower()
-                handle_choice(choice, profile)
+                handle_choice(choice, profile)  # ✅ kirim profile yang sama
             else:
                 console.print("Gagal membangun profil.", style=get_theme()["text_err"])
                 pause()
@@ -260,6 +259,7 @@ def main():
             else:
                 console.print("Tidak ada user dipilih atau gagal load.", style=get_theme()["text_err"])
                 pause()
+
 
 if __name__ == "__main__":
     try:

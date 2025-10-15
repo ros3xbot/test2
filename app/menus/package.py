@@ -24,6 +24,7 @@ from rich.markup import escape
 
 console = Console()
 
+
 def show_package_details(api_key, tokens, package_option_code, is_enterprise, option_order=-1):
     clear_screen()
     theme = get_theme()
@@ -63,7 +64,6 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
         )
     ]
 
-    # Panel Informasi Paket
     info_table = Table.grid(padding=(0, 1))
     info_table.add_column(justify="left", style=theme["text_body"])
     info_table.add_column(justify="left")
@@ -76,7 +76,6 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
     console.print(Panel(info_table, title="📦 Detail Paket", border_style=theme["border_info"], expand=True))
 
-    # Panel Benefit
     benefits = option.get("benefits", [])
     if benefits:
         benefit_table = Table(box=MINIMAL_DOUBLE_HEAD, expand=True)
@@ -113,10 +112,8 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
         console.print(Panel(benefit_table, title="🎁 Benefit Paket", border_style=theme["border_success"], padding=(0, 0), expand=True))
 
-    # Panel SnK
     console.print(Panel(detail, title="📜 Syarat & Ketentuan", border_style=theme["border_warning"], expand=True))
 
-    # Panel Navigasi
     option_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
     option_table.add_column(justify="right", style=theme["text_key"], width=6)
     option_table.add_column(justify="left", style=theme["text_body"])
@@ -137,7 +134,6 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
     console.print(Panel(option_table, title="🛒 Opsi Pembelian", border_style=theme["border_info"], expand=True))
 
-    # Interaksi
     while True:
         choice = console.input(f"[{theme['text_sub']}]Pilihan:[/{theme['text_sub']}] ").strip().lower()
         if choice == "00":
@@ -212,7 +208,6 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 print_panel("⚠️ Error", f"Gagal melakukan pembelian decoy: {e}")
                 pause()
                 return False
-
 
         elif choice == "6":
             use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
@@ -343,7 +338,6 @@ def get_packages_by_family(
     while True:
         clear_screen()
 
-        # Panel info family
         info_text = Text()
         info_text.append("Nama: ", style=theme["text_body"])
         info_text.append(f"{data['package_family']['name']}\n", style=theme["text_value"])
@@ -362,7 +356,6 @@ def get_packages_by_family(
             expand=True
         ))
 
-        # Tabel daftar paket
         table = Table(box=MINIMAL_DOUBLE_HEAD, expand=True)
         table.add_column("No", justify="right", style=theme["text_key"], width=4)
         table.add_column("Varian", style=theme["text_body"])
@@ -384,7 +377,6 @@ def get_packages_by_family(
             expand=True
         ))
 
-        # Navigasi
         nav = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav.add_column(justify="right", style=theme["text_key"], width=6)
         nav.add_column(style=theme["text_body"])
@@ -398,7 +390,6 @@ def get_packages_by_family(
             expand=True
         ))
 
-        # Input
         choice = console.input(f"[{theme['text_sub']}]Pilih paket (nomor):[/{theme['text_sub']}] ").strip()
         if choice == "00":
             return "BACK" if not return_package_detail else None

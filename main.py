@@ -152,7 +152,7 @@ def show_main_menu(profile):
 
 def handle_choice(choice, profile):
     theme = get_theme()
-    choice = choice.strip().lower()  # Normalisasi input agar case-insensitive
+    choice = choice.strip().lower()
     tokens = AuthInstance.get_active_user()["tokens"]
     api_key = AuthInstance.api_key
 
@@ -233,9 +233,9 @@ def handle_choice(choice, profile):
         input("Tekan Enter untuk lanjut...")
 
     elif choice == "s":
-        special_packages = user_context.get("segments", {}).get("special_packages", [])
+        special_packages = profile.get("segments", {}).get("special_packages", [])
         if special_packages:
-            result = show_special_for_you_menu(user_context["tokens"], special_packages)
+            result = show_special_for_you_menu(tokens, special_packages)
             if result in ("MAIN", "BACK"):
                 return
         else:
@@ -245,7 +245,6 @@ def handle_choice(choice, profile):
     else:
         console.print("Pilihan tidak valid.", style=theme["text_err"])
         pause()
-
 def main():
     while True:
         active_user = AuthInstance.get_active_user()
@@ -265,7 +264,6 @@ def main():
             else:
                 console.print("Tidak ada user dipilih atau gagal load.", style=get_theme()["text_err"])
                 pause()
-
 
 if __name__ == "__main__":
     try:

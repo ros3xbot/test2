@@ -21,7 +21,7 @@ from app.menus.hot import show_hot_menu, show_hot_menu2
 from app.service.sentry import enter_sentry_mode
 from app.menus.purchase import purchase_by_family, purchase_loop
 from app.menus.util_helper import clear_screen, get_rupiah
-#from app.menus.donate import show_donate_menu
+from app.menus.donate import show_donate_menu
 from app.menus.theme import show_theme_menu
 from app.config.theme_config import get_theme
 
@@ -60,6 +60,7 @@ def build_profile():
 
 def show_main_menu(profile):
     clear_screen()
+    theme = get_theme()
     expired_at_dt = datetime.fromtimestamp(profile["balance_expired_at"]).strftime("%Y-%m-%d %H:%M:%S")
     pulsa_str = get_rupiah(profile["balance"])
 
@@ -79,18 +80,26 @@ def show_main_menu(profile):
     menu_table.add_column("Aksi", style=theme["text_body"])
     menu_table.add_row("1", "🔐 Login/Ganti akun")
     menu_table.add_row("2", "📑 Lihat Paket Saya")
-    menu_table.add_row("3", "🔥 Beli Paket HOT")
-    menu_table.add_row("4", "🔥 Beli Paket HOT-2")
-    menu_table.add_row("5", "🔍 Beli Paket Berdasarkan Family Code")
-    menu_table.add_row("6", "📜 Riwayat Transaksi")
-    menu_table.add_row("7", "🧪 Purchase all packages in family code")
-    menu_table.add_row("8", "🔁 Order berulang by Family Code")
+    menu_table.add_row("3", "📜 Riwayat Transaksi")
+    menu_table.add_row("4", "🎁 Tukar Point Reward")
+    menu_table.add_row("5", "🔥 Beli Paket Hot Promo")
+    menu_table.add_row("6", "🔥 Beli Paket Hot Promo-2")
+    menu_table.add_row("7", "🔍 Beli Paket Berdasarkan Family Code")
+    menu_table.add_row("8", "🧪 Beli semua Paket dalam Family Code")
+    menu_table.add_row("9", "🔁 Order berulang dari Family Code")
+    menu_table.add_row("10", "🛒 Beli/Buat Paket Bundle (multi)")
+    menu_table.add_row("11", "💾 Simpan/Kelola Family Code")
     menu_table.add_row("00", "⭐ Bookmark Paket")
+    menu_table.add_row("", "")
+    menu_table.add_row("77", f"[{theme['border_warning']}]📢 Info Unlock Code [/]")  
+    menu_table.add_row("88", f"[{theme['text_sub']}]🎨 Ganti Tema CLI [/]")  
     menu_table.add_row("99", f"[{theme['text_err']}]⛔ Tutup aplikasi [/]")
 
     console.print(Panel(menu_table, title=f"[{theme['text_title']}]✨ Menu Utama ✨[/]", title_align="center", border_style=theme["border_primary"], padding=(0, 1), expand=True))
 
 def handle_choice(choice, profile):
+    theme = get_theme()
+    choice = choice.strip().lower()  # Normalisasi input agar case-insensitive
     tokens = AuthInstance.get_active_user()["tokens"]
     api_key = AuthInstance.api_key
 
@@ -100,43 +109,86 @@ def handle_choice(choice, profile):
             AuthInstance.set_active_user(selected_user_number)
         else:
             console.print("Tidak ada user dipilih atau gagal load.", style=theme["text_err"])
+
     elif choice == "2":
         fetch_my_packages()
+
     elif choice == "3":
-        show_hot_menu()
+        show_transaction_history(api_key, tokens)
+
     elif choice == "4":
-        show_hot_menu2()
+        tokens = AuthInstance.get_active_tokens()
+        if not tokens:
+            print_panel("⚠️ Error", "Token tidak ditemukan. Silakan login terlebih dahulu.")
+            pause()
+        else:
+            run_point_exchange(tokens)
+
     elif choice == "5":
-        family_code = input("Masukkan Family Code (atau '99' untuk batal): ")
+        show_hot_menu()
+
+    elif choice == "6":
+        show_hot_menu2()
+
+    elif choice == "7":
+        family_code = input("Masukkan Family Code (atau '99' untuk batal): ").strip()
         if family_code != "99":
             get_packages_by_family(family_code)
-    elif choice == "6":
-        show_transaction_history(api_key, tokens)
-    elif choice == "7":
-        family_code = input("Masukkan Family Code (atau '99' untuk batal): ")
-        if family_code != "99":
-            use_decoy = input("Gunakan decoy? (y/n): ").lower() == 'y'
-            pause_on_success = input("Pause tiap sukses? (y/n): ").lower() == 'y'
-            purchase_by_family(family_code, use_decoy, pause_on_success)
+
     elif choice == "8":
-        family_code = input("Masukkan Family Code (atau '99' untuk batal): ")
+        family_code = input("Masukkan Family Code: ").strip()
         if family_code != "99":
-            use_decoy = input("Gunakan decoy? (y/n): ").lower() == 'y'
-            order = int(input("Urutan dari list Family Code: "))
-            delay = input("Delay (detik): ")
-            how_many = int(input("Berapa kali ulang: "))
-            purchase_loop(how_many, family_code, order, use_decoy, 0 if delay == "" else int(delay))
+            use_decoy = input("Gunakan decoy? (y/n): ").strip().lower() == 'y'
+            pause_on_success = input("Pause tiap sukses? (y/n): ").strip().lower() == 'y'
+            purchase_by_family(family_code, use_decoy, pause_on_success)
+
+    elif choice == "9":
+        family_code = input("Masukkan Family Code: ").strip()
+        if family_code != "99":
+            use_decoy = input("Gunakan decoy? (y/n): ").strip().lower() == 'y'
+            try:
+                order = int(input("Urutan dari list Family Code: ").strip())
+                delay = input("Delay (detik): ").strip()
+                how_many = int(input("Berapa kali ulang: ").strip())
+                purchase_loop(how_many, family_code, order, use_decoy, 0 if delay == "" else int(delay))
+            except ValueError:
+                print_panel("⚠️ Error", "Input angka tidak valid.")
+                pause()
+
+    elif choice == "10":
+        show_bundle_menu()
+
+    elif choice == "11":
+        show_family_menu()
+
     elif choice == "00":
         show_bookmark_menu()
+
+    elif choice == "77":
+        show_donate_menu()
+
+    elif choice == "88":
+        show_theme_menu()
+
     elif choice == "99":
         console.print("Menutup aplikasi...", style=theme["text_err"])
         sys.exit(0)
+
     elif choice == "t":
         res = get_package(api_key, tokens, "")
         console.print(res)
         input("Tekan Enter untuk lanjut...")
+
     elif choice == "s":
-        enter_sentry_mode()
+        special_packages = user_context.get("segments", {}).get("special_packages", [])
+        if special_packages:
+            result = show_special_for_you_menu(user_context["tokens"], special_packages)
+            if result in ("MAIN", "BACK"):
+                return
+        else:
+            print_panel("ℹ️ Info", "Tidak ada paket Special For You yang tersedia saat ini.")
+            pause()
+
     else:
         console.print("Pilihan tidak valid.", style=theme["text_err"])
         pause()
@@ -148,7 +200,7 @@ def main():
             profile = build_profile()
             if profile:
                 show_main_menu(profile)
-                choice = input("Pilih menu: ")
+                choice = input("Pilih menu: ").strip()
                 handle_choice(choice, profile)
             else:
                 console.print("Gagal membangun profil.", style=theme["text_err"])

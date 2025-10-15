@@ -32,6 +32,7 @@ theme = get_theme()
 cached_user_context = None
 last_fetch_time = 0
 
+
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
     now = time.time()

@@ -30,7 +30,7 @@ def show_bookmark_menu(return_package_detail: bool = False):
 
         bookmarks = BookmarkInstance.get_bookmarks()
         if not bookmarks:
-            print_panel("ℹ️ Info", "Tidak ada bookmark tersimpan.")
+            print_panel("Info", "Tidak ada bookmark tersimpan.")
             pause()
             return (None, None) if return_package_detail else None
 

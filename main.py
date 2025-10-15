@@ -250,7 +250,7 @@ def main():
 
                 family_code = console.input(f"[{theme['text_sub']}]Masukkan Family Code:[/{theme['text_sub']}] ").strip()
                 if not family_code or family_code == "99":
-                    print_panel("ℹ️ Info", "Pembelian dibatalkan.")
+                    print_panel("Info", "Pembelian dibatalkan.")
                     pause()
                     continue
 
@@ -270,7 +270,7 @@ def main():
                 console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
                 lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
                 if lanjut != "y":
-                    print_panel("ℹ️ Info", "Pembelian dibatalkan.")
+                    print_panel("Info", "Pembelian dibatalkan.")
                     pause()
                     continue
 
@@ -286,7 +286,7 @@ def main():
 
                 family_code = console.input(f"[{theme['text_sub']}]Masukkan Family Code:[/{theme['text_sub']}] ").strip()
                 if not family_code or family_code == "99":
-                    print_panel("ℹ️ Info", "Pembelian dibatalkan.")
+                    print_panel("Info", "Pembelian dibatalkan.")
                     pause()
                     continue
 
@@ -314,7 +314,7 @@ def main():
                     console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
                     lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
                     if lanjut != "y":
-                        print_panel("ℹ️ Info", "Pembelian dibatalkan.")
+                        print_panel("Info", "Pembelian dibatalkan.")
                         pause()
                         continue
 
@@ -344,7 +344,7 @@ def main():
                     if result in ("MAIN", "BACK"):
                         continue
                 else:
-                    print_panel("ℹ️ Info", "Tidak ada paket Special For You yang tersedia saat ini.")
+                    print_panel("Info", "Tidak ada paket Special For You yang tersedia saat ini.")
                     pause()
 
             case _:

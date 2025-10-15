@@ -102,6 +102,41 @@ def show_main_menu(profile):
 
     console.print(Panel(menu_table, title=f"[{theme['text_title']}]✨ Menu Utama ✨[/]", title_align="center", border_style=theme["border_primary"], padding=(0, 1), expand=True))
 
+    # Paket Spesial
+    special_packages = segments.get("special_packages", [])
+    if special_packages:
+        best = random.choice(special_packages)
+
+        name = best.get("name", "-")
+        diskon_percent = best.get("diskon_percent", 0)
+        diskon_price = best.get("diskon_price", 0)
+        original_price = best.get("original_price", 0)
+        emoji_diskon = "💸" if diskon_percent >= 50 else ""
+        emoji_kuota = "🔥" if best.get("kuota_gb", 0) >= 100 else ""
+
+        special_text = (
+            f"[bold {theme['text_title']}]🔥🔥🔥 Paket Special Untukmu! 🔥🔥🔥[/{theme['text_title']}]\n\n"
+            f"[{theme['text_body']}]{emoji_kuota} {name}[/{theme['text_body']}]\n"
+            f"Diskon {diskon_percent}% {emoji_diskon} "
+            f"Rp[{theme['text_err']}][strike]{get_rupiah(original_price)}[/strike][/{theme['text_err']}] ➡️ "
+            f"Rp[{theme['text_money']}]{get_rupiah(diskon_price)}[/{theme['text_money']}]"
+        )
+
+
+        panel_width = console.size.width
+        console.print(
+            Panel(
+                Align.center(special_text),
+                border_style=theme["border_warning"],
+                padding=(0, 2),
+                width=panel_width
+            )
+        )
+
+        console.print(Align.center(
+            f"[{theme['text_sub']}]Pilih [S] untuk lihat semua paket spesial[/{theme['text_sub']}]"
+        ))
+
 def handle_choice(choice, profile):
     theme = get_theme()
     choice = choice.strip().lower()  # Normalisasi input agar case-insensitive

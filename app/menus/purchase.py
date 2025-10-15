@@ -53,7 +53,7 @@ def purchase_by_family(
         print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
         balance_answer = input("Apakah anda yakin ingin melanjutkan pembelian? (y/n): ").strip().lower()
         if balance_answer != "y":
-            print_panel("ℹ️ Info", "Pembelian dibatalkan oleh user.")
+            print_panel("Info", "Pembelian dibatalkan oleh user.")
             pause()
             return None
 
@@ -214,7 +214,7 @@ def purchase_n_times(
         print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
         balance_answer = input("Apakah anda yakin ingin melanjutkan pembelian? (y/n): ").strip().lower()
         if balance_answer != "y":
-            print_panel("ℹ️ Info", "Pembelian dibatalkan oleh user.")
+            print_panel("Info", "Pembelian dibatalkan oleh user.")
             pause()
             return None
 

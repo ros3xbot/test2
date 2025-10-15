@@ -191,8 +191,9 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 ))
                 overwrite_amount = price + decoy_detail["package_option"]["price"]
                 res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, overwrite_amount, token_confirmation_idx=-1)
+
                 if res and res.get("status", "") != "SUCCESS":
-                error_msg = res.get("message", "")
+                    error_msg = res.get("message", "")
                     if "Bizz-err.Amount.Total" in error_msg:
                         error_msg_arr = error_msg.split("=")
                         valid_amount = int(error_msg_arr[1].strip())
@@ -202,8 +203,16 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                             print_panel("✅ Info", "Pembelian berhasil dengan jumlah yang disesuaikan.")
                     else:
                         print_panel("✅ Info", "Pembelian berhasil.")
+                else:
+                    print_panel("✅ Info", "Pembelian berhasil.")
                 pause()
                 return True
+
+            except Exception as e:
+                print_panel("⚠️ Error", f"Gagal melakukan pembelian decoy: {e}")
+                pause()
+                return False
+
 
         elif choice == "6":
             use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"

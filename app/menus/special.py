@@ -63,7 +63,7 @@ def show_special_for_you_menu(tokens: dict, special_packages: list):
         clear_screen()
 
         if not special_packages:
-            print_panel("ℹ️ Info", "Tidak ada paket spesial tersedia saat ini.")
+            print_panel("Info", "Tidak ada paket spesial tersedia saat ini.")
             pause()
             return
 

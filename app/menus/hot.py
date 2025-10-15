@@ -360,7 +360,7 @@ def show_hot_menu2():
                         Align.center(konfirmasi_text),
                         title=f"[{theme['text_title']}]Konfirmasi Pembelian[/]",
                         border_style=theme["border_warning"],
-                        padding=(0, 2),
+                        padding=(0, 1),
                         expand=True
                     ))
 

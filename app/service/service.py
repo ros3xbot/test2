@@ -7,6 +7,7 @@ from Crypto.Util.Padding import pad, unpad
 is_anu = os.path.join(os.path.dirname(__file__), "unlock_status.json")
 anu_aes = b'barbex_id_secret!'
 
+
 def encrypt_base64(data: dict) -> str:
     raw = json.dumps(data).encode()
     cipher = AES.new(anu_aes, AES.MODE_ECB)

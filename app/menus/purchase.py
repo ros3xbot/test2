@@ -1,7 +1,6 @@
 import time
-from random import randint
-
 import requests
+from random import randint
 
 from app.client.balance import settlement_balance
 from app.client.encrypt import BASE_CRYPTO_URL
@@ -18,6 +17,7 @@ from app.menus.util_helper import print_panel, get_rupiah
 
 console = Console()
 theme = get_theme()
+
 
 def purchase_by_family(
         family_code: str,

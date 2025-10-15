@@ -171,14 +171,14 @@ def show_hot_menu():
         nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav_table.add_column(justify="right", style=theme["text_key"], width=4)
         nav_table.add_column(style=theme["text_body"])
-        nav_table.add_row("00", f"[{theme['text_sub']}]Kembali ke menu awal[/]")
+        nav_table.add_row("00", f"[{theme['text_sub']}]Kembali ke menu utama[/]")
         nav_table.add_row("99", f"[{theme['text_err']}]Reset[/] [{theme['text_body']}](apabila gagal memuat detail paket)[/]")
 
         console.print(Panel(nav_table, border_style=theme["border_info"], padding=(0, 1), expand=True))
 
         choice = console.input(f"[{theme['text_sub']}]Pilih paket:[/{theme['text_sub']}] ").strip()
         if choice == "00":
-            #print_panel("ℹ️ Info", "Kembali ke menu awal...")
+            #print_panel("ℹ️ Info", "Kembali ke menu utama...")
             #pause()
             return
 
@@ -271,7 +271,15 @@ def show_hot_menu2():
             table.add_row(str(idx + 1), p["name"], get_rupiah(p["price"]))
 
         console.print(Panel(table, border_style=theme["border_primary"], padding=(0, 0), expand=True))
-        console.print(Panel("[bold]00[/] Kembali ke menu utama", border_style=theme["border_info"], padding=(0, 1), expand=True))
+        #console.print(Panel("[bold]00[/] Kembali ke menu utama", border_style=theme["border_info"], padding=(0, 1), expand=True))
+        
+        nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
+        nav_table.add_column(justify="right", style=theme["text_key"], width=4)
+        nav_table.add_column(style=theme["text_body"])
+        nav_table.add_row("00", f"[{theme['text_sub']}]Kembali ke menu utama[/]")
+
+        console.print(Panel(nav_table, border_style=theme["border_info"], padding=(0, 1), expand=True))
+
 
         choice = console.input(f"[{theme['text_sub']}]Pilih paket:[/{theme['text_sub']}] ").strip()
         if choice == "00":

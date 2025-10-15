@@ -344,7 +344,7 @@ def show_hot_menu2():
 
                 method = console.input(f"[{theme['text_sub']}]Pilih metode:[/{theme['text_sub']}] ").strip()
                 if method == "1":
-                    confirm = console.input(f"[{theme['text_sub']}]Pastikan balance cukup. Lanjutkan pembelian? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                    confirm = console.input(f"[{theme['text_sub']}]Pastikan sisa balance KURANG DARI Rp{payment_items[-1]['item_price']}. Lanjutkan pembelian? (y/n):[/{theme['text_sub']}] ").strip().lower()
                     if confirm != "y":
                         print_panel("ℹ️ Info", "Pembelian dibatalkan oleh pengguna.")
                         pause()

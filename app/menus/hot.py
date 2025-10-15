@@ -350,7 +350,7 @@ def show_hot_menu2():
                 break
             elif method == "1":
                 if overwrite_amount == -1:
-                    harga_rp = get_rupiah(payment_items[-1].item_price)
+                    harga_rp = get_rupiah(payment_items[-1]["item_price"])
                     konfirmasi_text = Text()
                     konfirmasi_text.append("⚠️ Pastikan sisa balance KURANG DARI\n", style=theme["text_err"])
                     konfirmasi_text.append(f"Harga paket: Rp {harga_rp}\n", style=theme["text_money"])

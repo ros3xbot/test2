@@ -13,6 +13,7 @@ from rich.align import Align
 
 console = Console()
 
+
 def show_bookmark_menu(return_package_detail: bool = False):
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()

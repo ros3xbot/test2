@@ -21,6 +21,7 @@ from app.menus.util_helper import print_panel, get_rupiah
 
 console = Console()
 
+
 def print_banner():
     theme = get_theme()
     banner_text = Align.center(
@@ -108,29 +109,3 @@ def show_simple_number_panel():
         padding=(0, 0),
         expand=True
     ))
-
-def render_account_info_panel(api_key, tokens):
-    theme = get_theme()
-    try:
-        balance = get_balance(api_key, tokens["id_token"])
-        profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
-    except Exception:
-        print_panel("⚠️ Error", "Gagal mengambil informasi akun.")
-        return
-
-    number = profile_data["profile"].get("msisdn", "-")
-    sub_id = profile_data["profile"].get("subscriber_id", "-")
-    sub_type = profile_data["profile"].get("subscription_type", "-")
-    balance_amount = balance.get("remaining", 0)
-    expired_at = balance.get("expired_at", 0)
-    expired_at_dt = datetime.fromtimestamp(expired_at).strftime("%Y-%m-%d %H:%M:%S")
-
-    info_table = Table.grid(padding=(0, 1))
-    info_table.add_column(justify="right", style=theme["text_body"])
-    info_table.add_column(justify="left", style=theme["text_body"])
-    info_table.add_row(" Akun Aktif", f" 📞 [bold {theme['text_body']}]{number}[/]")
-    info_table.add_row(" Langganan", f": 🧾 [{theme['text_body']}]{sub_type} ({sub_id})[/]")
-    info_table.add_row(" Pulsa", f": 💰 Rp [{theme['text_money']}]{get_rupiah(balance_amount)}[/]")
-    info_table.add_row(" Masa Aktif", f": ⏳ [{theme['text_date']}]{expired_at_dt}[/]")
-
-    console.print(Panel(info_table, border_style=theme["border_warning"], padding=(0, 12), expand=True))

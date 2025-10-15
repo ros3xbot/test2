@@ -13,6 +13,7 @@ from app.menus.util_helper import print_panel, clear_screen
 
 console = Console()
 
+
 def normalize_number(raw_input: str) -> str:
     raw_input = raw_input.strip()
     if raw_input.startswith("08"):
@@ -80,7 +81,6 @@ def show_account_menu():
     while in_account_menu:
         clear_screen()
 
-        # Tambah akun jika belum ada atau diminta
         if active_user is None or add_user:
             if not is_unlocked and len(users) >= border_set:
                 print_panel("🚫 Batas akun tercapai", "Masukkan kode unlock untuk menambah akun.")
@@ -109,7 +109,6 @@ def show_account_menu():
             add_user = False
             continue
 
-        # Panel judul
         console.print(Panel(
             Align.center("📱 Akun Tersimpan", vertical="middle"),
             border_style=theme["border_info"],
@@ -117,7 +116,6 @@ def show_account_menu():
             expand=True
         ))
 
-        # Tabel akun
         account_table = Table(show_header=True, box=MINIMAL_DOUBLE_HEAD, expand=True)
         account_table.add_column("No", style=theme["text_key"], justify="right", width=4)
         account_table.add_column("Nama", style=theme["text_body"])
@@ -131,7 +129,6 @@ def show_account_menu():
 
         console.print(Panel(account_table, border_style=theme["border_primary"], expand=True))
 
-        # Navigasi
         nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav_table.add_column(justify="right", style=theme["text_key"], width=6)
         nav_table.add_column(justify="left", style=theme["text_body"])

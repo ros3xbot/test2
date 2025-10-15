@@ -4,6 +4,7 @@ import time
 
 from app.client.engsel import get_new_token
 
+
 class Auth:
     _instance_ = None
     _initialized_ = False

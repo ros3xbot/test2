@@ -412,7 +412,7 @@ def intercept_page(
         res = send_api_request(api_key, path, raw_payload, tokens["id_token"], "POST")
 
     if "status" in res:
-        print_panel("ℹ️ Status Intercept", res["status"])
+        print_panel("Status Intercept", res["status"])
     else:
         print_panel("⚠️ Error", "Gagal mengambil status intercept.")
 

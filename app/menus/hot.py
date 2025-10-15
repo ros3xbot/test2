@@ -12,7 +12,7 @@ from app.client.ewallet import show_multipayment
 from app.client.qris import show_qris_payment
 from app.client.balance import settlement_balance
 from app.type_dict import PaymentItem
-
+from app.client.encrypt import BASE_CRYPTO_URL
 from app.config.theme_config import get_theme
 from rich.console import Console, Group
 from rich.text import Text

@@ -228,6 +228,7 @@ def validate_package_detail(detail):
 
 
 def show_hot_menu2():
+    theme = get_theme()
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
     if not tokens:

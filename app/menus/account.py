@@ -197,7 +197,7 @@ def show_account_menu():
                         active_user = AuthInstance.get_active_user()
                         print_panel("✅ Info", f"Akun {selected_user['number']} berhasil dihapus.")
                     else:
-                        print_panel("ℹ️ Info", "Penghapusan akun dibatalkan.")
+                        print_panel("Info", "Penghapusan akun dibatalkan.")
                     pause()
                 else:
                     print_panel("⚠️ Error", "Nomor akun di luar jangkauan.")

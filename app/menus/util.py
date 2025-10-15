@@ -95,9 +95,12 @@ def display_html(html_text, width=80):
 def show_simple_number_panel():
     theme = get_theme()
     active_user = AuthInstance.get_active_user()
-    
-    number = active_user.get("number", "-")
-    text = f"[bold {theme['text_body']}]akun yang sedang aktif / digunakan✨{number}✨[/]"
+
+    if not active_user:
+        text = f"[bold {theme['text_err']}]Tidak ada akun aktif saat ini.[/]"
+    else:
+        number = active_user.get("number", "-")
+        text = f"[bold {theme['text_body']}]Akun yang sedang aktif ✨ {number} ✨[/]"
 
     console.print(Panel(
         Align.center(text),

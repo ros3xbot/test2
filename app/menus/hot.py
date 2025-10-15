@@ -106,7 +106,7 @@ def show_hot_menu():
         clear_screen()
 
         try:
-            response = requests.get("https://raw.githubusercontent.com/dratx1/engsel/refs/heads/main/family/pg-hot.json", timeout=30)
+            response = requests.get("https://me.mashu.lol/pg-hot.json", timeout=30)
             hot_packages = response.json()
         except Exception:
             print_panel("⚠️ Error", "Gagal mengambil data HOT Package.")
@@ -241,7 +241,7 @@ def show_hot_menu2():
         ))
 
         try:
-            response = requests.get("https://raw.githubusercontent.com/dratx1/engsel/refs/heads/main/family/pg-hot2.json", timeout=30)
+            response = requests.get("https://me.mashu.lol/pg-hot2.json", timeout=30)
             hot_packages = response.json()
         except Exception:
             print_panel("⚠️ Error", "Gagal mengambil data HOT-2 Package.")

@@ -18,7 +18,6 @@ def show_transaction_history(api_key, tokens):
 
     while in_transaction_menu:
         clear_screen()
-        #console.print(Panel("📄 Riwayat Transaksi", title="💰 Transaksi", border_style=theme["border_info"], expand=True))
         console.print(Panel(
             Align.center("📄 Riwayat Transaksi", vertical="middle"),
             border_style=theme["border_info"],
@@ -34,7 +33,7 @@ def show_transaction_history(api_key, tokens):
             history = []
 
         if not history:
-            print_panel("ℹ️ Info", "Tidak ada riwayat transaksi.")
+            print_panel("Info", "Tidak ada riwayat transaksi.")
         else:
             for idx, transaction in enumerate(history, start=1):
                 ts = transaction.get("timestamp", 0)

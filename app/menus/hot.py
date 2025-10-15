@@ -106,7 +106,7 @@ def show_hot_menu():
         clear_screen()
 
         try:
-            url = BASE_CRYPTO_URL + "/pghot1"
+            url = "https://me.mashu.lol/pg-hot.json"
             response = requests.get(url, timeout=30)
             response.raise_for_status()
             hot_packages = response.json()
@@ -248,7 +248,7 @@ def show_hot_menu2():
         ))
 
         try:
-            url = BASE_CRYPTO_URL + "/pghot2"
+            url = "https://me.mashu.lol/pg-hot2.json"
             response = requests.get(url, timeout=30)
             response.raise_for_status()
             hot_packages = response.json()
@@ -271,7 +271,6 @@ def show_hot_menu2():
             table.add_row(str(idx + 1), p["name"], get_rupiah(p["price"]))
 
         console.print(Panel(table, border_style=theme["border_primary"], padding=(0, 0), expand=True))
-        #console.print(Panel("[bold]00[/] Kembali ke menu utama", border_style=theme["border_info"], padding=(0, 1), expand=True))
         
         nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav_table.add_column(justify="right", style=theme["text_key"], width=4)
@@ -364,7 +363,6 @@ def show_hot_menu2():
                     konfirmasi_text = Text()
                     konfirmasi_text.append("⚠️ Pastikan sisa balance KURANG DARI\n", style=theme["text_err"])
                     konfirmasi_text.append(f"Harga paket: Rp {harga_rp}\n", style=theme["text_money"])
-                    #konfirmasi_text.append("Lanjutkan pembelian?", style=theme["text_body"])
 
                     console.print(Panel(
                         Align.center(konfirmasi_text),

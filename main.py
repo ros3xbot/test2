@@ -33,7 +33,7 @@ from app.config.theme_config import get_theme
 console = Console()
 theme = get_theme()
 
-def build_profile():
+def build_profile(verbose=True):
     tokens = AuthInstance.get_active_tokens()
     if not tokens:
         print_panel("⚠️ Error", "Token pengguna aktif tidak ditemukan.")
@@ -42,15 +42,18 @@ def build_profile():
 
     api_key = AuthInstance.api_key
 
-    print("Fetching balance...")
+    if verbose:
+        print("Fetching balance...")
     balance = get_balance(api_key, tokens["id_token"])
 
-    print("Fetching profile...")
+    if verbose:
+        print("Fetching profile...")
     profile_data = get_profile(api_key, tokens["access_token"], tokens["id_token"])
 
     balance_remaining = balance.get("remaining", 0)
 
-    print("Fetching tiering info...")
+    if verbose:
+        print("Fetching tiering info...")
     sub_type = profile_data["profile"].get("subscription_type", "-")
     sub_id = profile_data["profile"].get("subscriber_id", "-")
 
@@ -73,15 +76,12 @@ def build_profile():
         "segments": segments_data
     }
 
-
-
 def show_main_menu(profile):
     clear_screen()
     theme = get_theme()
     expired_at_dt = datetime.fromtimestamp(profile["balance_expired_at"]).strftime("%Y-%m-%d %H:%M:%S")
     pulsa_str = get_rupiah(profile["balance"])
 
-    # Panel Informasi Akun
     info_table = Table.grid(padding=(0, 1))
     info_table.add_column(justify="left", style=theme["text_body"])
     info_table.add_column(justify="left", style=theme["text_body"])
@@ -93,7 +93,6 @@ def show_main_menu(profile):
 
     console.print(Panel(info_table, title=f"[{theme['text_title']}]✨Informasi Akun✨[/]", title_align="center", border_style=theme["border_info"], padding=(1, 2), expand=True))
 
-    # Panel Menu Utama
     menu_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
     menu_table.add_column("Kode", justify="right", style=theme["text_key"], width=6)
     menu_table.add_column("Aksi", style=theme["text_body"])
@@ -116,12 +115,9 @@ def show_main_menu(profile):
 
     console.print(Panel(menu_table, title=f"[{theme['text_title']}]✨ Menu Utama ✨[/]", title_align="center", border_style=theme["border_primary"], padding=(0, 1), expand=True))
 
-    # Panel Paket Spesial
     special_packages = profile.get("segments", {}).get("special_packages", [])
     if special_packages:
-        import random
         best = random.choice(special_packages)
-
         name = best.get("name", "-")
         diskon_percent = best.get("diskon_percent", 0)
         diskon_price = best.get("diskon_price", 0)
@@ -148,7 +144,6 @@ def show_main_menu(profile):
         console.print(Align.center(
             f"[{theme['text_sub']}]Pilih [S] untuk lihat semua paket spesial[/{theme['text_sub']}]"
         ))
-
 
 def handle_choice(choice, profile):
     theme = get_theme()
@@ -245,11 +240,12 @@ def handle_choice(choice, profile):
     else:
         console.print("Pilihan tidak valid.", style=theme["text_err"])
         pause()
+
 def main():
     while True:
         active_user = AuthInstance.get_active_user()
         if active_user:
-            profile = build_profile()
+            profile = build_profile(verbose=True)
             if profile:
                 show_main_menu(profile)
                 choice = input("Pilih menu: ").strip().lower()
@@ -270,4 +266,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         console.print("\nMenutup aplikasi...", style=get_theme()["text_err"])
-

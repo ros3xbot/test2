@@ -434,233 +434,303 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
 
 def get_packages_by_family(
-        family_code: str,
-        is_enterprise: bool | None = None,
-        migration_type: str | None = None
+    family_code: str,
+    is_enterprise: bool | None = None,
+    migration_type: str | None = None,
+    return_package_detail: bool = False
 ):
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
+    theme = get_theme()
+
     if not tokens:
-        print("No active user tokens found.")
+        print_panel("⚠️ Error", "Token pengguna aktif tidak ditemukan.")
         pause()
-        return None
+        return None if return_package_detail else "BACK"
+
+    data = get_family(api_key, tokens, family_code, is_enterprise, migration_type)
+    if not data:
+        print_panel("⚠️ Error", "Gagal memuat data paket family.")
+        pause()
+        return None if return_package_detail else "BACK"
 
     packages = []
+    for idx, variant in enumerate(data["package_variants"]):
+        for option in variant["package_options"]:
+            packages.append({
+                "number": len(packages) + 1,
+                "variant_name": variant["name"],
+                "option_name": option["name"],
+                "price": option["price"],
+                "code": option["package_option_code"],
+                "option_order": option["order"]
+            })
 
-    data = get_family(
-        api_key,
-        tokens,
-        family_code,
-        is_enterprise,
-        migration_type
-    )
-
-    if not data:
-        print("Failed to load family data.")
-        pause()
-        return None
-    price_currency = "Rp"
-    rc_bonus_type = data["package_family"].get("rc_bonus_type", "")
-    if rc_bonus_type == "MYREWARDS":
-        price_currency = "Poin"
-
-    in_package_menu = True
-    while in_package_menu:
+    while True:
         clear_screen()
-        # print(f"[GPBF-283]:\n{json.dumps(data, indent=2)}")
-        print("-------------------------------------------------------")
-        print(f"Family Name: {data['package_family']['name']}")
-        print(f"Family Code: {family_code}")
-        print(f"Family Type: {data['package_family']['package_family_type']}")
-        # print(f"Enterprise: {'Yes' if is_enterprise else 'No'}")
-        print(f"Variant Count: {len(data['package_variants'])}")
-        print("-------------------------------------------------------")
-        print("Paket Tersedia")
-        print("-------------------------------------------------------")
 
-        package_variants = data["package_variants"]
+        # Panel info family
+        info_text = Text()
+        info_text.append("Nama: ", style=theme["text_body"])
+        info_text.append(f"{data['package_family']['name']}\n", style=theme["text_value"])
+        info_text.append("Kode: ", style=theme["text_body"])
+        info_text.append(f"{family_code}\n", style=theme["border_warning"])
+        info_text.append("Tipe: ", style=theme["text_body"])
+        info_text.append(f"{data['package_family']['package_family_type']}\n", style=theme["text_value"])
+        info_text.append("Jumlah Varian: ", style=theme["text_body"])
+        info_text.append(f"{len(data['package_variants'])}\n", style=theme["text_value"])
 
-        option_number = 1
-        variant_number = 1
+        console.print(Panel(
+            info_text,
+            title=f"[{theme['text_title']}]📦 Info Paket Family[/]",
+            border_style=theme["border_info"],
+            padding=(0, 2),
+            expand=True
+        ))
 
-        for variant in package_variants:
-            variant_name = variant["name"]
-            variant_code = variant["package_variant_code"]
-            print(f" Variant {variant_number}: {variant_name}")
-            print(f" Code: {variant_code}")
-            for option in variant["package_options"]:
-                option_name = option["name"]
+        # Tabel daftar paket
+        table = Table(box=MINIMAL_DOUBLE_HEAD, expand=True)
+        table.add_column("No", justify="right", style=theme["text_key"], width=4)
+        table.add_column("Varian", style=theme["text_body"])
+        table.add_column("Nama Paket", style=theme["text_body"])
+        table.add_column("Harga", style=theme["text_money"], justify="right")
 
-                packages.append({
-                    "number": option_number,
-                    "variant_name": variant_name,
-                    "option_name": option_name,
-                    "price": option["price"],
-                    "code": option["package_option_code"],
-                    "option_order": option["order"]
-                })
+        for pkg in packages:
+            table.add_row(
+                str(pkg["number"]),
+                pkg["variant_name"],
+                pkg["option_name"],
+                get_rupiah(pkg["price"])
+            )
 
-                print(f"   {option_number}. {option_name} - {price_currency} {option['price']}")
+        console.print(Panel(
+            table,
+            border_style=theme["border_primary"],
+            padding=(0, 1),
+            expand=True
+        ))
 
-                option_number += 1
+        # Navigasi
+        nav = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
+        nav.add_column(justify="right", style=theme["text_key"], width=6)
+        nav.add_column(style=theme["text_body"])
+        nav.add_row("00", f"[{theme['text_sub']}]Kembali ke menu sebelumnya[/]")
+        nav.add_row("000", f"[{theme['text_err']}]Kembali ke menu utama[/]")
 
-            if variant_number < len(package_variants):
-                print("-------------------------------------------------------")
-            variant_number += 1
-        print("-------------------------------------------------------")
+        console.print(Panel(
+            nav,
+            border_style=theme["border_info"],
+            padding=(0, 1),
+            expand=True
+        ))
 
-        print("00. Kembali ke menu utama")
-        print("-------------------------------------------------------")
-        pkg_choice = input("Pilih paket (nomor): ")
-        if pkg_choice == "00":
-            in_package_menu = False
-            return None
-        selected_pkg = next((p for p in packages if p["number"] == int(pkg_choice)), None)
+        # Input
+        choice = console.input(f"[{theme['text_sub']}]Pilih paket (nomor):[/{theme['text_sub']}] ").strip()
+        if choice == "00":
+            return "BACK" if not return_package_detail else None
+        elif choice == "000":
+            return "MAIN"
 
-        if not selected_pkg:
-            print("Paket tidak ditemukan. Silakan masukan nomor yang benar.")
+        elif not choice.isdigit():
+            print_panel("⚠️ Error", "Input tidak valid. Masukkan nomor paket.")
+            pause()
             continue
 
-        is_done = show_package_details(api_key, tokens, selected_pkg["code"], is_enterprise,
-                                       option_order=selected_pkg["option_order"])
-        if is_done:
-            in_package_menu = False
-            return None
+        selected = next((p for p in packages if p["number"] == int(choice)), None)
+        if not selected:
+            print_panel("⚠️ Error", "Nomor paket tidak ditemukan.")
+            pause()
+            continue
+
+        if return_package_detail:
+            variant_code = next((v["package_variant_code"] for v in data["package_variants"] if v["name"] == selected["variant_name"]), None)
+            detail = get_package_details(
+                api_key, tokens,
+                family_code,
+                variant_code,
+                selected["option_order"],
+                is_enterprise
+            )
+            if detail:
+                display_name = f"{data['package_family']['name']} - {selected['variant_name']} - {selected['option_name']}"
+                return detail, display_name
+            else:
+                print_panel("⚠️ Error", "Gagal mengambil detail paket.")
+                pause()
+                continue
         else:
-            continue
-
-    return packages
+            result = show_package_details(
+                api_key,
+                tokens,
+                selected["code"],
+                is_enterprise,
+                option_order=selected["option_order"]
+            )
+            if result == "MAIN":
+                return "MAIN"
+            elif result == "BACK":
+                continue
+            elif result is True:
+                continue
 
 
 def fetch_my_packages():
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
+    theme = get_theme()
+
     if not tokens:
-        print("No active user tokens found.")
+        print_panel("⚠️ Error", "Tidak ditemukan token pengguna aktif.")
         pause()
-        return None
+        return "BACK"
 
     id_token = tokens.get("id_token")
-
     path = "api/v8/packages/quota-details"
-
     payload = {
         "is_enterprise": False,
         "lang": "en",
         "family_member_id": ""
     }
 
-    print("Fetching my packages...")
-    res = send_api_request(api_key, path, payload, id_token, "POST")
-    if res.get("status") != "SUCCESS":
-        print("Failed to fetch packages")
-        print("Response:", res)
-        pause()
-        return None
+    while True:
+        clear_screen()
 
-    quotas = res["data"]["quotas"]
+        with live_loading("Mengambil daftar paket aktif Anda...", theme):
+            res = send_api_request(api_key, path, payload, id_token, "POST")
 
-    clear_screen()
-    print("=======================================================")
-    print("======================My Packages======================")
-    print("=======================================================")
-    my_packages = []
-    num = 1
-    for quota in quotas:
-        quota_code = quota["quota_code"]  # Can be used as option_code
-        group_code = quota["group_code"]
-        group_name = quota["group_name"]
-        quota_name = quota["name"]
-        family_code = "N/A"
+        if res.get("status") != "SUCCESS":
+            print_panel("⚠️ Error", "Gagal mengambil paket.")
+            pause()
+            return "BACK"
 
-        benefit_infos = []
-        benefits = quota.get("benefits", [])
-        if len(benefits) > 0:
-            for benefit in benefits:
-                benefit_id = benefit.get("id", "")
-                name = benefit.get("name", "")
-                data_type = benefit.get("data_type", "N/A")
-                benefit_info = "  -----------------------------------------------------\n"
-                benefit_info += f"  ID    : {benefit_id}\n"
-                benefit_info += f"  Name  : {name}\n"
-                benefit_info += f"  Type  : {data_type}\n"
+        quotas = res["data"]["quotas"]
+        if not quotas:
+            print_panel("ℹ️ Info", "Tidak ada paket aktif ditemukan.")
+            pause()
+            return "BACK"
 
-                remaining = benefit.get("remaining", 0)
-                total = benefit.get("total", 0)
+        console.print(Panel(
+            Align.center("📦 Paket Aktif Saya", vertical="middle"),
+            border_style=theme["border_info"],
+            padding=(1, 2),
+            expand=True
+        ))
 
-                if data_type == "DATA":
-                    if remaining >= 1_000_000_000:
-                        remaining_gb = remaining / (1024 ** 3)
-                        remaining_str = f"{remaining_gb:.2f} GB"
-                    elif remaining >= 1_000_000:
-                        remaining_mb = remaining / (1024 ** 2)
-                        remaining_str = f"{remaining_mb:.2f} MB"
-                    elif remaining >= 1_000:
-                        remaining_kb = remaining / 1024
-                        remaining_str = f"{remaining_kb:.2f} KB"
+        my_packages = []
+        for num, quota in enumerate(quotas, start=1):
+            quota_code = quota["quota_code"]
+            group_code = quota["group_code"]
+            group_name = quota["group_name"]
+            quota_name = quota["name"]
+            family_code = "N/A"
+
+            with live_loading(f"Paket #{num}", theme):
+                package_details = get_package(api_key, tokens, quota_code)
+
+            if package_details:
+                family_code = package_details["package_family"]["package_family_code"]
+
+            benefits = quota.get("benefits", [])
+            benefit_table = None
+            if benefits:
+                benefit_table = Table(box=MINIMAL_DOUBLE_HEAD, expand=True)
+                benefit_table.add_column("Nama", style=theme["text_body"])
+                benefit_table.add_column("Jenis", style=theme["text_body"])
+                benefit_table.add_column("Kuota", style=theme["text_body"], justify="right")
+
+                for b in benefits:
+                    name = b.get("name", "")
+                    dt = b.get("data_type", "N/A")
+                    r = b.get("remaining", 0)
+                    t = b.get("total", 0)
+
+                    if dt == "DATA":
+                        def fmt(val):
+                            if val >= 1_000_000_000:
+                                return f"{val / (1024 ** 3):.2f} GB"
+                            elif val >= 1_000_000:
+                                return f"{val / (1024 ** 2):.2f} MB"
+                            elif val >= 1_000:
+                                return f"{val / 1024:.2f} KB"
+                            return f"{val} B"
+                        r_str = fmt(r)
+                        t_str = fmt(t)
+                    elif dt == "VOICE":
+                        r_str = f"{r / 60:.2f} menit"
+                        t_str = f"{t / 60:.2f} menit"
+                    elif dt == "TEXT":
+                        r_str = f"{r} SMS"
+                        t_str = f"{t} SMS"
                     else:
-                        remaining_str = str(remaining)
+                        r_str = str(r)
+                        t_str = str(t)
 
-                    if total >= 1_000_000_000:
-                        total_gb = total / (1024 ** 3)
-                        total_str = f"{total_gb:.2f} GB"
-                    elif total >= 1_000_000:
-                        total_mb = total / (1024 ** 2)
-                        total_str = f"{total_mb:.2f} MB"
-                    elif total >= 1_000:
-                        total_kb = total / 1024
-                        total_str = f"{total_kb:.2f} KB"
-                    else:
-                        total_str = str(total)
+                    benefit_table.add_row(name, dt, f"{r_str} / {t_str}")
 
-                    benefit_info += f"  Kuota : {remaining_str} / {total_str}"
-                elif data_type == "VOICE":
-                    benefit_info += f"  Kuota : {remaining / 60:.2f} / {total / 60:.2f} menit"
-                elif data_type == "TEXT":
-                    benefit_info += f"  Kuota : {remaining} / {total} SMS"
-                else:
-                    benefit_info += f"  Kuota : {remaining} / {total}"
+            package_text = Text()
+            package_text.append(f"📦 Paket {num}\n", style="bold")
+            package_text.append("Nama: ", style=theme["border_info"])
+            package_text.append(f"{quota_name}\n", style=theme["text_sub"])
+            package_text.append("Quota Code: ", style=theme["border_info"])
+            package_text.append(f"{quota_code}\n", style=theme["text_body"])
+            package_text.append("Family Code: ", style=theme["border_info"])
+            package_text.append(f"{family_code}\n", style=theme["border_warning"])
+            package_text.append("Group Code: ", style=theme["border_info"])
+            package_text.append(f"{group_code}\n", style=theme["text_body"])
 
-                benefit_infos.append(benefit_info)
+            panel_content = [package_text]
+            if benefit_table:
+                panel_content.append(benefit_table)
 
-        print(f"fetching package no. {num} details...")
-        package_details = get_package(api_key, tokens, quota_code)
-        if package_details:
-            family_code = package_details["package_family"]["package_family_code"]
+            console.print(Panel(
+                Group(*panel_content),
+                border_style=theme["border_primary"],
+                padding=(0, 1),
+                expand=True
+            ))
 
-        print("=======================================================")
-        print(f"Package {num}")
-        print(f"Name: {quota_name}")
-        print("Benefits:")
-        if len(benefit_infos) > 0:
-            for bi in benefit_infos:
-                print(bi)
-            print("  -----------------------------------------------------")
-        print(f"Group Name: {group_name}")
-        print(f"Quota Code: {quota_code}")
-        print(f"Family Code: {family_code}")
-        print(f"Group Code: {group_code}")
-        print("=======================================================")
+            my_packages.append({
+                "number": num,
+                "quota_code": quota_code,
+            })
 
-        my_packages.append({
-            "number": num,
-            "quota_code": quota_code,
-        })
+        package_range = f"(1–{len(my_packages)})"
+        nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
+        nav_table.add_column(justify="right", style=theme["text_key"], width=6)
+        nav_table.add_column(style=theme["text_body"])
+        nav_table.add_row(package_range, f"[{theme['text_body']}]Pilih nomor paket untuk pembelian ulang")
+        nav_table.add_row("00", f"[{theme['text_err']}]Kembali ke menu utama")
 
-        num += 1
+        console.print(Panel(
+            nav_table,
+            border_style=theme["border_info"],
+            padding=(0, 1),
+            expand=True
+        ))
 
-    print("Rebuy package? Input package number to rebuy, or '00' to back.")
-    choice = input("Choice: ")
-    if choice == "00":
-        return None
-    selected_pkg = next((pkg for pkg in my_packages if str(pkg["number"]) == choice), None)
+        while True:
+            choice = console.input(f"[{theme['text_sub']}]Masukkan nomor paket {package_range} atau 00:[/{theme['text_sub']}] ").strip().lower()
+            if choice == "00":
+                with live_loading("Kembali ke menu utama...", theme):
+                    pass
+                return "BACK"
 
-    if not selected_pkg:
-        print("Paket tidak ditemukan. Silakan masukan nomor yang benar.")
-        return None
+            if not choice.isdigit():
+                print_panel("⚠️ Error", "Input tidak valid. Masukkan nomor paket atau 00.")
+                continue
 
-    is_done = show_package_details(api_key, tokens, selected_pkg["quota_code"], False)
-    if is_done:
-        return None
+            selected_pkg = next((pkg for pkg in my_packages if str(pkg["number"]) == choice), None)
+            if not selected_pkg:
+                print_panel("⚠️ Error", f"Nomor paket tidak ditemukan. Masukkan angka {package_range} atau 00.")
+                continue
 
-    pause()
+            result = show_package_details(api_key, tokens, selected_pkg["quota_code"], False)
+
+            if result == "MAIN":
+                return "BACK"
+            elif result == "BACK":
+                with live_loading("Kembali ke daftar paket...", theme):
+                    pass
+                break
+            elif result is True:
+                return "BACK"

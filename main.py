@@ -25,6 +25,8 @@ from app.menus.donate import show_donate_menu
 from app.menus.bundle import show_bundle_menu
 from app.menus.points import run_point_exchange
 from app.menus.family_grup import show_family_menu
+from app.menus.points import run_point_exchange
+from app.menus.special import show_special_for_you_menu
 from app.menus.theme import show_theme_menu
 from app.config.theme_config import get_theme
 

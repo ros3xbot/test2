@@ -11,6 +11,7 @@ from rich.box import MINIMAL_DOUBLE_HEAD
 
 console = Console()
 
+
 def show_transaction_history(api_key, tokens):
     theme = get_theme()
     in_transaction_menu = True
@@ -52,7 +53,6 @@ def show_transaction_history(api_key, tokens):
 
                 console.print(Panel(t, title=f"🧾 Transaksi #{idx}", border_style=theme["border_success"], expand=True))
 
-        # Navigasi
         nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav_table.add_column(justify="right", style=theme["text_key"], width=6)
         nav_table.add_column(justify="left", style=theme["text_body"])

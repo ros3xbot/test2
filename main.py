@@ -34,11 +34,12 @@ console = Console()
 theme = get_theme()
 
 def build_profile():
-    active_user = AuthInstance.get_active_user()
-    if not active_user:
+    tokens = AuthInstance.get_active_tokens()
+    if not tokens:
+        print_panel("⚠️ Error", "Token pengguna aktif tidak ditemukan.")
+        pause()
         return None
 
-    tokens = active_user["tokens"]
     api_key = AuthInstance.api_key
 
     balance = get_balance(api_key, tokens["id_token"])
@@ -59,14 +60,15 @@ def build_profile():
     segments_data = segments(balance_remaining) or {}
 
     return {
-        "number": active_user["number"],
+        "number": AuthInstance.get_active_user()["number"],
         "subscriber_id": sub_id,
         "subscription_type": sub_type,
         "balance": balance.get("remaining", 0),
         "balance_expired_at": balance.get("expired_at", 0),
         "point_info": point_info,
-        "segments": segments_data  # ✅ penting untuk paket spesial
+        "segments": segments_data
     }
+
 
 def show_main_menu(profile):
     clear_screen()
@@ -246,19 +248,23 @@ def main():
             profile = build_profile()
             if profile:
                 show_main_menu(profile)
-                choice = input("Pilih menu: ").strip()
+                choice = input("Pilih menu: ").strip().lower()
                 handle_choice(choice, profile)
             else:
-                console.print("Gagal membangun profil.", style=theme["text_err"])
+                console.print("Gagal membangun profil.", style=get_theme()["text_err"])
+                pause()
         else:
             selected_user_number = show_account_menu()
             if selected_user_number:
                 AuthInstance.set_active_user(selected_user_number)
             else:
-                console.print("Tidak ada user dipilih atau gagal load.", style=theme["text_err"])
+                console.print("Tidak ada user dipilih atau gagal load.", style=get_theme()["text_err"])
+                pause()
+
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        console.print("\nMenutup aplikasi...", style=theme["text_err"])
+        console.print("\nMenutup aplikasi...", style=get_theme()["text_err"])
+

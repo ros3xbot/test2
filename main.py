@@ -102,7 +102,6 @@ def show_main_menu(profile, display_quota, segments):
     expired_at_dt = datetime.fromtimestamp(profile["balance_expired_at"]).strftime("%Y-%m-%d %H:%M:%S")
     pulsa_str = get_rupiah(profile["balance"])
 
-    # Informasi Akun
     info_table = Table.grid(padding=(0, 1))
     info_table.add_column(justify="left", style=theme["text_body"])
     info_table.add_column(justify="left", style=theme["text_body"])
@@ -115,7 +114,6 @@ def show_main_menu(profile, display_quota, segments):
 
     console.print(Panel(info_table, title=f"[{theme['text_title']}]✨Informasi Akun✨[/]", title_align="center", border_style=theme["border_info"], padding=(1, 2), expand=True))
 
-    # Paket Spesial
     special_packages = segments.get("special_packages", [])
     if special_packages:
         best = random.choice(special_packages)
@@ -135,7 +133,6 @@ def show_main_menu(profile, display_quota, segments):
             f"Rp[{theme['text_money']}]{get_rupiah(diskon_price)}[/{theme['text_money']}]"
         )
 
-
         panel_width = console.size.width
         console.print(
             Panel(
@@ -150,8 +147,6 @@ def show_main_menu(profile, display_quota, segments):
             f"[{theme['text_sub']}]Pilih [S] untuk lihat semua paket spesial[/{theme['text_sub']}]"
         ))
 
-
-    # Menu Utama
     menu_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
     menu_table.add_column("Kode", justify="right", style=theme["text_key"], width=6)
     menu_table.add_column("Aksi", style=theme["text_body"])
@@ -176,8 +171,10 @@ def show_main_menu(profile, display_quota, segments):
 
     console.print(Panel(menu_table, title=f"[{theme['text_title']}]✨ Menu Utama ✨[/]", title_align="center", border_style=theme["border_primary"], padding=(0, 1), expand=True))
 
+
 def main():
     global cached_user_context, last_fetch_time
+    theme = get_theme()
 
     while True:
         user_context = fetch_user_context()
@@ -196,7 +193,6 @@ def main():
                 continue
 
         show_main_menu(user_context, user_context["display_quota"], user_context["segments"])
-        theme = get_theme()
         choice = console.input(f"[{theme['text_sub']}]Pilih menu:[/{theme['text_sub']}] ").strip().lower()
 
         match choice:
@@ -243,7 +239,7 @@ def main():
                 show_bundle_menu()
 
             case "10":
-                clear_sc()
+                clear_screen()
                 console.print(Panel(
                     Align.center("🛒 Beli Semua Paket Yang ada dalam Family Code", vertical="middle"),
                     border_style=theme["border_info"],
@@ -263,15 +259,12 @@ def main():
                 pause_input = console.input(f"[{theme['text_sub']}]Pause setiap pembelian sukses? (y/n):[/{theme['text_sub']}] ").strip().lower()
                 pause_on_success = pause_input == "y"
 
-                from rich.text import Text
-
                 confirm_text = Text.from_markup(
                     f"Family Code: [bold]{family_code}[/]\n"
                     f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}\n"
                     f"Pause per pembelian: {'Ya' if pause_on_success else 'Tidak'}\n\n"
                     f"[{theme['text_sub']}]Lanjutkan pembelian semua paket dalam family code ini?[/{theme['text_sub']}]"
                 )
-
 
                 console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
                 lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
@@ -283,17 +276,52 @@ def main():
                 purchase_by_family(family_code, use_decoy, pause_on_success)
 
             case "11":
-                family_code = input("Masukkan Family Code: ").strip()
-                if family_code != "99":
-                    use_decoy = input("Gunakan decoy? (y/n): ").strip().lower() == 'y'
-                    try:
-                        order = int(input("Urutan dari list Family Code: ").strip())
-                        delay = input("Delay (detik): ").strip()
-                        how_many = int(input("Berapa kali ulang: ").strip())
-                        purchase_loop(how_many, family_code, order, use_decoy, 0 if delay == "" else int(delay))
-                    except ValueError:
-                        print_panel("⚠️ Error", "Input angka tidak valid.")
+                console.print(Panel(
+                    Align.center("🔁 Order Berulang dari Family Code", vertical="middle"),
+                    border_style=theme["border_info"],
+                    padding=(1, 2),
+                    expand=True
+                ))
+
+                family_code = console.input(f"[{theme['text_sub']}]Masukkan Family Code:[/{theme['text_sub']}] ").strip()
+                if not family_code or family_code == "99":
+                    print_panel("ℹ️ Info", "Pembelian dibatalkan.")
+                    pause()
+                    continue
+
+                use_decoy_input = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                use_decoy = use_decoy_input == "y"
+
+                order_input = console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip()
+                delay_input = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
+                how_many_input = console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip()
+
+                try:
+                    order = int(order_input)
+                    delay = int(delay_input) if delay_input else 0
+                    how_many = int(how_many_input)
+
+                    confirm_text = Text.from_markup(
+                        f"Family Code: [bold]{family_code}[/]\n"
+                        f"Urutan: [bold]{order}[/]\n"
+                        f"Jumlah Ulang: [bold]{how_many}[/]\n"
+                        f"Delay: [bold]{delay} detik[/]\n"
+                        f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}\n\n"
+                        f"[{theme['text_sub']}]Lanjutkan pembelian berulang?[/{theme['text_sub']}]"
+                    )
+
+                    console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
+                    lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                    if lanjut != "y":
+                        print_panel("ℹ️ Info", "Pembelian dibatalkan.")
                         pause()
+                        continue
+
+                    purchase_loop(how_many, family_code, order, use_decoy, delay)
+
+                except ValueError:
+                    print_panel("⚠️ Error", "Input angka tidak valid.")
+                    pause()
 
             case "00":
                 show_bookmark_menu()
@@ -321,6 +349,7 @@ def main():
             case _:
                 print_panel("⚠️ Error", "Pilihan tidak valid.")
                 pause()
+
 
 if __name__ == "__main__":
     try:

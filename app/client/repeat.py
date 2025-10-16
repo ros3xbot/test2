@@ -2,12 +2,16 @@ import time
 import requests
 from rich.table import Table
 from rich.panel import Panel
+from rich.console import Console
+
 from app.service.auth import AuthInstance
 from app.client.engsel import get_package_details
 from app.client.balance import settlement_balance
 from app.client.qris import show_qris_payment
 from app.menus.util_helper import print_panel, get_rupiah
 from app.config.theme_config import get_theme
+
+console = Console()
 
 # 🔧 Daftar preset decoy
 DECOY_OPTIONS = {
@@ -52,7 +56,7 @@ def select_decoy_url():
     table.add_row("0", f"[{theme['text_sub']}]Batal / tanpa decoy[/]")
 
     print_panel("📦 Pilih Decoy", "Silakan pilih jenis decoy yang ingin digunakan:")
-    print(Panel(table, border_style=theme["border_info"], expand=True))
+    console.print(Panel(table, border_style=theme["border_info"], expand=True))
 
     choice = input("Pilihan decoy: ").strip()
     if choice in DECOY_OPTIONS:
@@ -92,15 +96,18 @@ def purchase_n_times(n, family_code, variant_code, option_order, use_decoy=False
             if use_decoy:
                 decoy_detail = fetch_decoy_detail(api_key, tokens, decoy_url)
                 decoy_option = decoy_detail["package_option"]
-                payment_items.append({
-                    "item_code": decoy_option["package_option_code"],
-                    "product_type": "",
-                    "item_price": decoy_option["price"],
-                    "item_name": decoy_option["name"],
-                    "tax": 0,
-                    "token_confirmation": decoy_detail["token_confirmation"]
-                })
-                total_amount += decoy_option["price"]
+                if decoy_option["package_option_code"] != main_option["package_option_code"]:
+                    payment_items.append({
+                        "item_code": decoy_option["package_option_code"],
+                        "product_type": "",
+                        "item_price": decoy_option["price"],
+                        "item_name": decoy_option["name"],
+                        "tax": 0,
+                        "token_confirmation": decoy_detail["token_confirmation"]
+                    })
+                    total_amount += decoy_option["price"]
+                else:
+                    print_panel("⚠️ Error", "Item decoy sama dengan item utama, dilewati.")
 
             res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, total_amount)
 
@@ -138,14 +145,17 @@ def purchase_qris_n_times(n, cart_items, use_decoy=False, delay_seconds=0):
             if use_decoy:
                 decoy_detail = fetch_decoy_detail(api_key, tokens, decoy_url)
                 decoy_option = decoy_detail["package_option"]
-                items.append({
-                    "item_code": decoy_option["package_option_code"],
-                    "product_type": "",
-                    "item_price": decoy_option["price"],
-                    "item_name": decoy_option["name"],
-                    "tax": 0,
-                    "token_confirmation": decoy_detail["token_confirmation"]
-                })
+                if decoy_option["package_option_code"] not in [item["item_code"] for item in items]:
+                    items.append({
+                        "item_code": decoy_option["package_option_code"],
+                        "product_type": "",
+                        "item_price": decoy_option["price"],
+                        "item_name": decoy_option["name"],
+                        "tax": 0,
+                        "token_confirmation": decoy_detail["token_confirmation"]
+                    })
+                else:
+                    print_panel("⚠️ Error", "Item decoy sudah ada di keranjang, dilewati.")
 
             show_qris_payment(api_key, tokens, items, "SHARE_PACKAGE", True, token_confirmation_idx=1 if use_decoy else 0)
             input("✅ QRIS ditampilkan. Tekan Enter untuk lanjut...")

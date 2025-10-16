@@ -31,8 +31,7 @@ def print_banner():
         style=theme["text_title"],
         padding=(1, 2),
         expand=True,
-        #box=box.DOUBLE
-        box=box.ROUNDED
+        box=box.DOUBLE
     ))
 
 def clear_screen():

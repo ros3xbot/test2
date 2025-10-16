@@ -76,3 +76,8 @@ def get_rupiah(value) -> str:
 
 def live_loading(text: str, theme: dict):
     return console.status(f"[{theme['text_sub']}]{text}[/{theme['text_sub']}]", spinner="dots")
+
+def get_api():
+    with open("apikey.anomali", "r") as f:
+        return f.read()
+

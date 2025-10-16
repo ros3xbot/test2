@@ -2,6 +2,7 @@ import base64
 import hashlib
 import os
 import requests
+from dotenv import load_dotenv
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
@@ -9,6 +10,7 @@ from binascii import unhexlify
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
+load_dotenv()
 # Helper validasi AES_KEY dari environment
 def ensure_env_key(var_name: str, expected_length: int = 32) -> bytes:
     value = os.getenv(var_name)

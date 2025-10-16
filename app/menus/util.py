@@ -35,7 +35,6 @@ def print_banner():
         padding=(1, 2),
         expand=True,
         box=box.DOUBLE
-        #box=box.SIMPLE_HEAVY
     ))
     show_simple_number_panel()
 

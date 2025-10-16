@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from binascii import unhexlify
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from app.menus.util_helper import get_api
+#from app.menus.util_helper import get_api
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
@@ -165,6 +165,11 @@ def ax_api_signature(
     else:
         raise Exception(f"Signature generation failed: {response.text}")
 
+def get_api():
+    api_key = os.getenv("BASIC_KEYS")
+    if not api_key or not api_key.strip():
+        raise ValueError("BASIC_KEY tidak ditemukan di environment")
+    return api_key.strip()
 
 def encryptsign_xdata(
         api_key: str,

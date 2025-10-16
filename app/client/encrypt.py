@@ -9,6 +9,10 @@ from random import randint
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
+def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
+    ct = base64.b64decode(enc_url)
+    pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
+    return pt.decode()
 
 API_KEY = os.getenv("API_KEY")
 AES_KEY_ASCII = os.getenv("AES_KEY_ASCII")
@@ -37,10 +41,6 @@ class DeviceInfo:
     android_release: str  # "13"
     msisdn: str
 
-def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
-    ct = base64.b64decode(enc_url)
-    pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
-    return pt.decode()
 
 def build_fingerprint_plain(dev: DeviceInfo) -> str:
     return (

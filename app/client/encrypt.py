@@ -1,48 +1,28 @@
-import os
 import base64
-import requests
 import hashlib
-from dotenv import load_dotenv
-from binascii import unhexlify
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
-from app.menus.util_helper import get_api
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
 
-load_dotenv()
+import requests
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 
-def ensure_env_key(var_name: str, expected_length: int = 32) -> bytes:
-    value = os.getenv(var_name)
-    if value is None:
-        raise EnvironmentError(f"Variabel environment '{var_name}' tidak ditemukan.")
-    if len(value) != expected_length:
-        raise ValueError(f"'{var_name}' harus hex string sepanjang {expected_length} karakter.")
-    try:
-        return unhexlify(value)
-    except Exception as e:
-        raise ValueError(f"Gagal konversi '{var_name}' ke bytes: {e}")
-
-def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
-    ct = base64.b64decode(enc_url)
-    pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
-    return pt.decode()
+from app.menus.util import get_api
 
 API_KEY = os.getenv("API_KEY")
+AES_KEY_ASCII = os.getenv("AES_KEY_ASCII")
 AX_FP_KEY = os.getenv("AX_FP_KEY")
-AES_KEY = ensure_env_key("AES_KEY")
 
-ENC_URL = "2k48hiX9KDnMroxmqQMymrDJqB8LtLvmcQqib9/XOGs="
-IV = b"\x00" * 16
-BASE_CRYPTO_URL = decrypt_url(ENC_URL, AES_KEY, IV)
+BASE_CRYPTO_URL = "https://xlc.gemail.ink"
 
-XDATA_DECRYPT_URL      = f"{BASE_CRYPTO_URL}/xdatadec"
+XDATA_DECRYPT_URL = f"{BASE_CRYPTO_URL}/xdatadec"
 XDATA_ENCRYPT_SIGN_URL = f"{BASE_CRYPTO_URL}/xdataenc"
-PAYMENT_SIGN_URL       = f"{BASE_CRYPTO_URL}/paysign"
-BOUNTY_SIGN_URL        = f"{BASE_CRYPTO_URL}/bountysign"
-LOYALTY_SIGN_URL       = f"{BASE_CRYPTO_URL}/rolaysign"
-AX_SIGN_URL            = f"{BASE_CRYPTO_URL}/ax_sign"
+PAYMENT_SIGN_URL = f"{BASE_CRYPTO_URL}/paysign"
+BOUNTY_SIGN_URL = f"{BASE_CRYPTO_URL}/bountysign"
+LOYALTY_SIGN_URL = f"{BASE_CRYPTO_URL}/rolaysign"
+AX_SIGN_URL = f"{BASE_CRYPTO_URL}/ax_sign"
 
 
 @dataclass

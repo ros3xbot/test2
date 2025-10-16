@@ -277,6 +277,7 @@ def main():
                 purchase_by_family(family_code, use_decoy, pause_on_success)
 
             case "11":
+                clear_sc()
                 console.print(Panel(
                     Align.center("🔁 Order Berulang dari Family Code", vertical="middle"),
                     border_style=theme["border_info"],

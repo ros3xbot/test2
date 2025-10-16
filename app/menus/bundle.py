@@ -27,7 +27,7 @@ def show_bundle_menu():
     theme = get_theme()
     payment_items = [
         PaymentItem(
-            item_code=package_option_code,
+            #item_code=package_option_code,
             product_type="",
             item_price=price,
             item_name=f"{variant_name} {option_name}".strip(),

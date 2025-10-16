@@ -141,7 +141,10 @@ def show_bundle_menu():
                 method_table.add_column(style=theme["text_body"])
                 method_table.add_row("1", "💰 Balance")
                 method_table.add_row("2", "💳 E-Wallet")
-                method_table.add_row("3", "📱 QRIS")
+                method_table.add_row("3", "📱 QRIS")    option_table.add_row("4", "💰 Pulsa + Decoy XCP")
+                method_table.add_row("5", "💰 Pulsa + Decoy XCP V2")
+                method_table.add_row("6", "🔁 Pulsa N kali")
+                method_table.add_row("7", "📱 QRIS + Decoy Edu")
                 method_table.add_row("00", f"[{theme['text_sub']}]Kembali ke menu sebelumnya[/]")
 
                 console.print(Panel(

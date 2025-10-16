@@ -1,3 +1,4 @@
+import requests
 from app.service.auth import AuthInstance
 from app.client.balance import settlement_balance
 from app.client.qris import show_qris_payment

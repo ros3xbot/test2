@@ -9,7 +9,7 @@ import requests
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
-from app.menus.util import get_api
+from app.menus.util_helper import get_api
 
 API_KEY = os.getenv("API_KEY")
 AES_KEY_ASCII = os.getenv("AES_KEY_ASCII")

@@ -1,6 +1,7 @@
 import os
 import base64
 import requests
+import hashlib
 from dotenv import load_dotenv
 from binascii import unhexlify
 from Crypto.Cipher import AES
@@ -8,12 +9,9 @@ from Crypto.Util.Padding import pad, unpad
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
-import hashlib
 
-# ⬅️ Wajib load .env agar os.getenv bisa membaca
 load_dotenv()
 
-# 🔐 Helper validasi AES_KEY dari environment
 def ensure_env_key(var_name: str, expected_length: int = 32) -> bytes:
     value = os.getenv(var_name)
     if value is None:
@@ -25,23 +23,19 @@ def ensure_env_key(var_name: str, expected_length: int = 32) -> bytes:
     except Exception as e:
         raise ValueError(f"Gagal konversi '{var_name}' ke bytes: {e}")
 
-# 🔓 Fungsi dekripsi URL terenkripsi
 def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
     ct = base64.b64decode(enc_url)
     pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
     return pt.decode()
 
-# 🔧 Ambil variabel dari environment
 API_KEY = os.getenv("API_KEY")
 AX_FP_KEY = os.getenv("AX_FP_KEY")
-AES_KEY = ensure_env_key("AES_KEY")  # gunakan AES_KEY hex 32 karakter
+AES_KEY = ensure_env_key("AES_KEY")
 
-# 🔓 Dekripsi URL utama
 ENC_URL = "2k48hiX9KDnMroxmqQMymrDJqB8LtLvmcQqib9/XOGs="
 IV = b"\x00" * 16
 BASE_CRYPTO_URL = decrypt_url(ENC_URL, AES_KEY, IV)
 
-# 🌐 Endpoint turunan
 XDATA_DECRYPT_URL      = f"{BASE_CRYPTO_URL}/xdatadec"
 XDATA_ENCRYPT_SIGN_URL = f"{BASE_CRYPTO_URL}/xdataenc"
 PAYMENT_SIGN_URL       = f"{BASE_CRYPTO_URL}/paysign"
@@ -85,7 +79,6 @@ def load_ax_fp() -> str:
             if content:
                 return content
 
-    # Generate new if not found/empty
     dev = DeviceInfo(
         manufacturer="samsung",
         model="SM-N93" + str(randint(1000, 9999)),  # biar beda2

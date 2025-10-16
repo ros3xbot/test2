@@ -33,16 +33,18 @@ def fetch_decoy_detail(api_key, tokens, url):
     )
 
 def append_decoy_to_items(payment_items, decoy_detail):
+    price = int(decoy_detail["package_option"]["price"])
     item = PaymentItem(
         item_code=decoy_detail["package_option"]["package_option_code"],
         product_type="",
-        item_price=decoy_detail["package_option"]["price"],
+        item_price=price,
         item_name=decoy_detail["package_option"]["name"],
         tax=0,
         token_confirmation=decoy_detail["token_confirmation"],
     )
     payment_items.append(item)
-    return item.item_price
+    return price  # ⬅️ Kembalikan harga langsung
+
 
 def show_bundle_menu():
     api_key = AuthInstance.api_key

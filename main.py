@@ -240,7 +240,7 @@ def main():
                 show_bundle_menu()
 
             case "10":
-                clear_screen()
+                clear_sc()
                 console.print(Panel(
                     Align.center("🛒 Beli Semua Paket Yang ada dalam Family Code", vertical="middle"),
                     border_style=theme["border_info"],

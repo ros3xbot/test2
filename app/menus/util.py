@@ -92,11 +92,6 @@ def display_html(html_text, width=80):
     parser.feed(html_text)
     return parser.get_text()
 
-
-def get_api():
-    with open("apikey.anomali", "r") as f:
-        return f.read()
-
 def show_simple_number_panel():
     theme = get_theme()
     active_user = AuthInstance.get_active_user()

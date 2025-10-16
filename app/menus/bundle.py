@@ -21,7 +21,7 @@ from rich.box import MINIMAL_DOUBLE_HEAD
 console = Console()
 
 
-def show_bundle_menu():
+def show_bundle_menu(api_key, tokens, package_option_code):
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
     theme = get_theme()

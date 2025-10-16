@@ -77,9 +77,3 @@ def get_rupiah(value) -> str:
 
 def live_loading(text: str, theme: dict):
     return console.status(f"[{theme['text_sub']}]{text}[/{theme['text_sub']}]", spinner="dots")
-
-#def get_api():
-#    api_key = os.getenv("BASIC_KEYS")
-#    if not api_key or not api_key.strip():
-#        raise ValueError("BASIC_KEY tidak ditemukan di environment")
-#    return api_key.strip()

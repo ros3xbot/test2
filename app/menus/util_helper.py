@@ -79,11 +79,7 @@ def live_loading(text: str, theme: dict):
     return console.status(f"[{theme['text_sub']}]{text}[/{theme['text_sub']}]", spinner="dots")
 
 #def get_api():
-#    with open("apikey.anomali", "r") as f:
- #       return f.read()
-
-def get_api():
-    api_key = os.getenv("API_KEYS")
-    if not api_key or not api_key.strip():
-        raise ValueError("API_KEY tidak ditemukan di environment")
-    return api_key.strip()
+#    api_key = os.getenv("BASIC_KEYS")
+#    if not api_key or not api_key.strip():
+#        raise ValueError("BASIC_KEY tidak ditemukan di environment")
+#    return api_key.strip()

@@ -308,7 +308,7 @@ def main():
                         f"Urutan: [bold]{order}[/]\n"
                         f"Jumlah Ulang: [bold]{how_many}[/]\n"
                         f"Delay: [bold]{delay} detik[/]\n"
-                        f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}\n"
+                        f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}"
                     )
 
                     console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))

@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import os
+import requests
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
@@ -8,23 +9,14 @@ from random import randint
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
-def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
-    ct = base64.b64decode(enc_url)
-    pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
-    return pt.decode()
-
-import requests
 
 API_KEY = os.getenv("API_KEY")
 AES_KEY_ASCII = os.getenv("AES_KEY_ASCII")
 AX_FP_KEY = os.getenv("AX_FP_KEY")
-
-ENC_URL = "MWTplJbcwLznnTmkkoq6NJ3VICvMOh9B+Nzlh8L4Xoc="
-AES_KEY = b"12345678901234567890123456789012"
+ENC_URL = "suMO7ErnFpbZwTBWhXJDHrB7dEZcVyBVWMKiBVqDfIM="
+AES_KEY = b"92fb44c0804233eb4d9e29f838223a14"
 IV = b"\x00" * 16
-
 BASE_CRYPTO_URL = decrypt_url(ENC_URL, AES_KEY, IV)
-
 XDATA_DECRYPT_URL = f"{BASE_CRYPTO_URL}/xdatadec"
 XDATA_ENCRYPT_SIGN_URL = f"{BASE_CRYPTO_URL}/xdataenc"
 PAYMENT_SIGN_URL = f"{BASE_CRYPTO_URL}/paysign"
@@ -45,6 +37,10 @@ class DeviceInfo:
     android_release: str  # "13"
     msisdn: str
 
+def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
+    ct = base64.b64decode(enc_url)
+    pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
+    return pt.decode()
 
 def build_fingerprint_plain(dev: DeviceInfo) -> str:
     return (

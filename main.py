@@ -309,11 +309,10 @@ def main():
                         f"Jumlah Ulang: [bold]{how_many}[/]\n"
                         f"Delay: [bold]{delay} detik[/]\n"
                         f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}\n\n"
-                        f"[{theme['text_sub']}]Lanjutkan pembelian berulang?[/{theme['text_sub']}]"
                     )
 
                     console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
-                    lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                    lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower()
                     if lanjut != "y":
                         print_panel("Info", "Pembelian dibatalkan.")
                         pause()

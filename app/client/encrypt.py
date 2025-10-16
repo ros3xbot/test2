@@ -8,6 +8,7 @@ from Crypto.Util.Padding import pad, unpad
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
+import hashlib
 
 # ⬅️ Wajib load .env agar os.getenv bisa membaca
 load_dotenv()

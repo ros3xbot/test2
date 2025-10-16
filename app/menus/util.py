@@ -33,7 +33,8 @@ def print_banner():
         border_style=theme["border_primary"],
         style=theme["text_title"],
         padding=(1, 2),
-        expand=True
+        expand=True,
+        box=box.DOUBLE
     ))
     show_simple_number_panel()
 

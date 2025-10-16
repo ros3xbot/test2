@@ -11,7 +11,6 @@ from app.client.engsel import get_package, get_package_details
 from app.client.qris import show_qris_payment
 from app.client.ewallet import show_multipayment
 from app.client.balance import settlement_balance
-from app.client.repeat import purchase_n_times
 from app.menus.util import clear_screen, pause
 from app.menus.util_helper import print_panel, get_rupiah
 from app.config.theme_config import get_theme
@@ -138,6 +137,7 @@ def show_bundle_menu(package_option_code):
             n_times = console.input(f"[{theme['text_sub']}]Berapa kali pembelian:[/{theme['text_sub']}] ").strip()
             delay = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
             try:
+                from app.client.repeat import purchase_n_times  # ⬅️ Import di dalam try agar tidak error saat modul belum tersedia
                 purchase_n_times(
                     int(n_times), family_code, variant_code,
                     option_order, use_decoy, int(delay), pause_on_success=False
@@ -146,6 +146,7 @@ def show_bundle_menu(package_option_code):
             except Exception as e:
                 print_panel("⚠️ Error", f"Gagal pembelian N kali: {e}")
                 pause()
+
         elif choice == "7":
             try:
                 decoy_detail = fetch_decoy_detail(api_key, tokens, "https://me.mashu.lol/pg-decoy-edu.json")

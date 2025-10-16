@@ -25,7 +25,12 @@ def show_bundle_menu():
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
     theme = get_theme()
-    
+
+    package = get_package(api_key, tokens, package_option_code)
+    if not package:
+        print_panel("⚠️ Error", "Gagal memuat detail paket.")
+        pause()
+        return "BACK"
     option = package.get("package_option", {})
     family = package.get("package_family", {})
     variant = package.get("package_detail_variant", {})

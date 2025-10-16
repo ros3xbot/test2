@@ -17,10 +17,12 @@ def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
 API_KEY = os.getenv("API_KEY")
 AES_KEY_ASCII = os.getenv("AES_KEY_ASCII")
 AX_FP_KEY = os.getenv("AX_FP_KEY")
+
 ENC_URL = "suMO7ErnFpbZwTBWhXJDHrB7dEZcVyBVWMKiBVqDfIM="
-AES_KEY = os.getenv(b"AES_KEY")
+AES_KEY = os.getenv("AES_KEY")  # gunakan string biasa, bukan byte string
 IV = b"\x00" * 16
 BASE_CRYPTO_URL = decrypt_url(ENC_URL, AES_KEY, IV)
+
 XDATA_DECRYPT_URL = f"{BASE_CRYPTO_URL}/xdatadec"
 XDATA_ENCRYPT_SIGN_URL = f"{BASE_CRYPTO_URL}/xdataenc"
 PAYMENT_SIGN_URL = f"{BASE_CRYPTO_URL}/paysign"

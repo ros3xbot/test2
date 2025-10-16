@@ -31,6 +31,7 @@ def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
 API_KEY = os.getenv("API_KEY")
 AX_FP_KEY = os.getenv("AX_FP_KEY")
 AES_KEY = ensure_env_key("AES_KEY")
+AES_KEY_ASCII = os.getenv("AES_KEY_ASCII")
 
 ENC_URL = "2k48hiX9KDnMroxmqQMymrDJqB8LtLvmcQqib9/XOGs="
 IV = b"\x00" * 16

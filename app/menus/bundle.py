@@ -175,6 +175,121 @@ def show_bundle_menu():
                     show_qris_payment(api_key, tokens, cart_items, "BUY_PACKAGE", True)
                     console.input(f"[{theme['text_sub']}]✅ Pembayaran selesai. Tekan Enter...[/{theme['text_sub']}]")
                     break
+
+
+
+
+                elif choice == "4" or choice == "5":
+                    try:
+                        url = "https://me.mashu.lol/pg-decoy-xcp.json"
+                        response = requests.get(url, timeout=30)
+                        decoy_data = response.json()
+                        decoy_detail = get_package_details(
+                            api_key, tokens,
+                            decoy_data["family_code"],
+                            decoy_data["variant_code"],
+                            decoy_data["order"],
+                            decoy_data["is_enterprise"],
+                            decoy_data["migration_type"]
+                        )
+                        payment_items.append(PaymentItem(
+                            item_code=decoy_detail["package_option"]["package_option_code"],
+                            product_type="",
+                            item_price=decoy_detail["package_option"]["price"],
+                            item_name=decoy_detail["package_option"]["name"],
+                            tax=0,
+                            token_confirmation=decoy_detail["token_confirmation"],
+                        ))
+                        overwrite_amount = price + decoy_detail["package_option"]["price"]
+                        res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, overwrite_amount, token_confirmation_idx=-1)
+
+                        if res and res.get("status", "") != "SUCCESS":
+                            error_msg = res.get("message", "")
+                            if "Bizz-err.Amount.Total" in error_msg:
+                                error_msg_arr = error_msg.split("=")
+                                valid_amount = int(error_msg_arr[1].strip())
+                                print_panel("Info", f"Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}")
+                                res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
+                                if res and res.get("status", "") == "SUCCESS":
+                                    print_panel("✅ Info", "Pembelian berhasil dengan jumlah yang disesuaikan.")
+                            else:
+                                print_panel("✅ Info", "Pembelian berhasil.")
+                        else:
+                            print_panel("✅ Info", "Pembelian berhasil.")
+                        pause()
+                        return True
+
+                    except Exception as e:
+                        print_panel("⚠️ Error", f"Gagal melakukan pembelian decoy: {e}")
+                        pause()
+                        return False
+
+                elif choice == "6":
+                    use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
+                    n_times_str = console.input(f"[{theme['text_sub']}]Berapa kali pembelian? (misal: 3):[/{theme['text_sub']}] ").strip()
+                    delay_str = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
+                    if not delay_str.isdigit():
+                        delay_str = "0"
+                    try:
+                        n_times = int(n_times_str)
+                        if n_times < 1:
+                            raise ValueError("Minimal 1 kali pembelian.")
+                    except ValueError:
+                        print_panel("⚠️ Error", "Input jumlah tidak valid.")
+                        pause()
+                        continue
+                    from app.client.repeat import purchase_n_times
+                    purchase_n_times(
+                        n_times,
+                        family_code=family.get("package_family_code", ""),
+                        variant_code=variant.get("package_variant_code", ""),
+                        option_order=option_order,
+                        use_decoy=use_decoy,
+                        delay_seconds=int(delay_str),
+                        pause_on_success=False,
+                    )
+                    return True
+        
+                elif choice == "7":
+                    try:
+                        response = requests.get("https://me.mashu.lol/pg-decoy-edu.json", timeout=30)
+                        response.raise_for_status()
+                        decoy_data = response.json()
+                        decoy_detail = get_package_details(
+                            api_key, tokens,
+                            decoy_data["family_code"],
+                            decoy_data["variant_code"],
+                            decoy_data["order"],
+                            decoy_data["is_enterprise"],
+                            decoy_data["migration_type"]
+                        )
+                        payment_items.append(PaymentItem(
+                            item_code=decoy_detail["package_option"]["package_option_code"],
+                            product_type="",
+                            item_price=decoy_detail["package_option"]["price"],
+                            item_name=decoy_detail["package_option"]["name"],
+                            tax=0,
+                            token_confirmation=decoy_detail["token_confirmation"],
+                        ))
+        
+                        info_text = Text()
+                        info_text.append(f"Harga Paket Utama: Rp {get_rupiah(price)}\n", style=theme["text_money"])
+                        info_text.append(f"Harga Decoy Edu: Rp {get_rupiah(decoy_detail['package_option']['price'])}\n", style=theme["text_money"])
+                        info_text.append("Silahkan sesuaikan amount jika diperlukan (trial & error)", style=theme["text_body"])
+        
+                        console.print(Panel(info_text, title="📦 Info Pembayaran QRIS + Decoy", border_style=theme["border_warning"], expand=True))
+        
+                        show_qris_payment(api_key, tokens, payment_items, "SHARE_PACKAGE", True, token_confirmation_idx=1)
+                        console.input(f"[{theme['text_sub']}]✅ QRIS selesai. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
+                        return True
+                    except Exception as e:
+                        print_panel("⚠️ Error", f"Gagal mengambil decoy Edu: {e}")
+                        pause()
+                        return False
+
+
+
+
                 else:
                     print_panel("⚠️ Error", "Metode tidak valid.")
                     pause()

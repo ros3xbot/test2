@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from binascii import unhexlify
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-#from app.menus.util_helper import get_api
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint
@@ -161,7 +160,7 @@ def ax_api_signature(
     elif response.status_code == 402:
         raise Exception("Insufficient API credit.")
     elif response.status_code == 401:
-        raise Exception("Join ke group https://t.me/AnooooMaliEngsellllll untuk info lanjut")
+        raise Exception("Masukan api key")
     else:
         raise Exception(f"Signature generation failed: {response.text}")
 
@@ -197,7 +196,7 @@ def encryptsign_xdata(
     elif response.status_code == 402:
         raise Exception("Insufficient API credit.")
     elif response.status_code == 401:
-        raise Exception("Join ke group https://t.me/AnooooMaliEngsellllll untuk info lanjut")
+        raise Exception("Masukan api key")
     else:
         raise Exception(f"Encryption failed: {response.text}")
 
@@ -221,7 +220,7 @@ def decrypt_xdata(
     elif response.status_code == 402:
         raise Exception("Insufficient API credit.")
     elif response.status_code == 401:
-        raise Exception("Join ke group https://t.me/AnooooMaliEngsellllll untuk info lanjut")
+        raise Exception("Masukan api key")
     else:
         raise Exception(f"Decryption failed: {response.text}")
 
@@ -258,7 +257,7 @@ def get_x_signature_payment(
     elif response.status_code == 402:
         raise Exception("Insufficient API credit.")
     elif response.status_code == 401:
-        raise Exception("Join ke group https://t.me/AnooooMaliEngsellllll untuk info lanjut")
+        raise Exception("Masukan api key")
     else:
         raise Exception(f"Signature generation failed: {response.text}")
 
@@ -288,7 +287,7 @@ def get_x_signature_bounty(
     elif response.status_code == 402:
         raise Exception("Insufficient API credit.")
     elif response.status_code == 401:
-        raise Exception("Join ke group https://t.me/AnooooMaliEngsellllll untuk info lanjut")
+        raise Exception("Masukan api key")
     else:
         raise Exception(f"Signature generation failed: {response.text}")
 
@@ -323,6 +322,6 @@ def get_x_signature_loyalty(
     elif response.status_code == 402:
         raise Exception("Insufficient API credit.")
     elif response.status_code == 401:
-        raise Exception("Join ke group https://t.me/AnooooMaliEngsellllll untuk info lanjut")
+        raise Exception("Masukan api key")
     else:
         raise Exception(f"Signature generation failed: {response.text}")

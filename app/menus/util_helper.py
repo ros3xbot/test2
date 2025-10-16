@@ -32,7 +32,7 @@ def print_banner():
         padding=(1, 2),
         expand=True,
         #box=box.DOUBLE
-        box.SIMPLE_HEAVY
+        box=box.SIMPLE_HEAVY
     ))
 
 def clear_screen():

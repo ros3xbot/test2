@@ -25,9 +25,28 @@ def show_bundle_menu():
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
     theme = get_theme()
+    
+    option = package.get("package_option", {})
+    family = package.get("package_family", {})
+    variant = package.get("package_detail_variant", {})
+    price = option.get("price", 0)
+    formatted_price = get_rupiah(price)
+    validity = option.get("validity", "-")
+    point = option.get("point", "-")
+    plan_type = family.get("plan_type", "-")
+    payment_for = family.get("payment_for", "") or "BUY_PACKAGE"
+    token_confirmation = package.get("token_confirmation", "")
+    ts_to_sign = package.get("timestamp", "")
+    detail = display_html(option.get("tnc", ""))
+
+    option_name = option.get("name", "")
+    family_name = family.get("name", "")
+    variant_name = variant.get("name", "")
+    title = f"{family_name} - {variant_name} - {option_name}".strip()
+
     payment_items = [
         PaymentItem(
-            #item_code=package_option_code,
+            item_code=package_option_code,
             product_type="",
             item_price=price,
             item_name=f"{variant_name} {option_name}".strip(),

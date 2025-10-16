@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import app.menus.banner as banner
 ascii_art = banner.load("https://me.mashu.lol/mebanner880.png", globals())
 ascii_art = banner.load("https://d17e22l2uh4h4n.cloudfront.net/corpweb/pub-xlaxiata/2019-03/xl-logo.png", globals())
@@ -16,7 +17,7 @@ from rich import box
 from app.config.theme_config import get_theme
 
 console = Console()
-
+load_dotenv()
 
 def print_banner():
     theme = get_theme()
@@ -77,7 +78,12 @@ def get_rupiah(value) -> str:
 def live_loading(text: str, theme: dict):
     return console.status(f"[{theme['text_sub']}]{text}[/{theme['text_sub']}]", spinner="dots")
 
-def get_api():
-    with open("apikey.anomali", "r") as f:
-        return f.read()
+#def get_api():
+#    with open("apikey.anomali", "r") as f:
+ #       return f.read()
 
+def get_api():
+    api_key = os.getenv("API_KEYS")
+    if not api_key or not api_key.strip():
+        raise ValueError("API_KEY tidak ditemukan di environment")
+    return api_key.strip()

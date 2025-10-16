@@ -79,6 +79,9 @@ def purchase_n_times(n, family_code, variant_code, option_order, use_decoy=False
         try:
             print_panel("🔁 Pembelian", f"Iterasi ke-{i+1} sedang diproses...")
             detail = get_package_details(api_key, tokens, family_code, variant_code, option_order, is_enterprise=False, migration_type="")
+            if not detail or "package_option" not in detail:
+                print_panel("⚠️ Error", "Gagal menemukan opsi paket yang sesuai.")
+                continue
 
             payment_items = []
             main_option = detail["package_option"]
@@ -95,6 +98,10 @@ def purchase_n_times(n, family_code, variant_code, option_order, use_decoy=False
 
             if use_decoy:
                 decoy_detail = fetch_decoy_detail(api_key, tokens, decoy_url)
+                if not decoy_detail or "package_option" not in decoy_detail:
+                    print_panel("⚠️ Error", "Gagal mengambil decoy: data tidak valid.")
+                    continue
+
                 decoy_option = decoy_detail["package_option"]
                 if decoy_option["package_option_code"] != main_option["package_option_code"]:
                     payment_items.append({
@@ -144,6 +151,10 @@ def purchase_qris_n_times(n, cart_items, use_decoy=False, delay_seconds=0):
             items = cart_items.copy()
             if use_decoy:
                 decoy_detail = fetch_decoy_detail(api_key, tokens, decoy_url)
+                if not decoy_detail or "package_option" not in decoy_detail:
+                    print_panel("⚠️ Error", "Gagal mengambil decoy: data tidak valid.")
+                    continue
+
                 decoy_option = decoy_detail["package_option"]
                 if decoy_option["package_option_code"] not in [item["item_code"] for item in items]:
                     items.append({

@@ -36,45 +36,6 @@ def save_family_cache(cache):
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
 
-
-def show_hot_main_menu():
-    theme = get_theme()
-    while True:
-        clear_screen()
-
-        console.print(Panel(
-            Align.center("✨ Paket Promo ✨", vertical="middle"),
-            border_style=theme["border_info"],
-            padding=(1, 2),
-            expand=True
-        ))
-
-        menu_table = Table(box=MINIMAL_DOUBLE_HEAD, expand=True)
-        menu_table.add_column("Kode", justify="right", style=theme["text_key"], width=6)
-        menu_table.add_column("Menu Paket", style=theme["text_body"])
-        menu_table.add_row("1", "Paket Hot Promo")
-        menu_table.add_row("2", "Paket Hot Promo-2")
-        menu_table.add_row("00", f"[{theme['text_err']}]Kembali ke menu utama[/]")
-
-        console.print(Panel(
-            menu_table,
-            border_style=theme["border_primary"],
-            padding=(0, 1),
-            expand=True
-        ))
-
-        choice = console.input(f"[{theme['text_sub']}]Pilih menu:[/{theme['text_sub']}] ").strip()
-        if choice == "1":
-            show_hot_menu()
-        elif choice == "2":
-            show_hot_menu2()
-        elif choice == "00":
-            live_loading(text="Kembali ke menu utama...", theme=theme)
-            return
-        else:
-            print_panel("⚠️ Error", "Input tidak valid. Silahkan coba lagi.")
-            pause()
-
 def validate_family_data(data):
     return (
         data and

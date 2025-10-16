@@ -51,7 +51,7 @@ def purchase_by_family(
 
         balance_treshold = decoy_package_detail["package_option"]["price"]
         print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
-        balance_answer = input("Apakah anda yakin ingin melanjutkan pembelian? (y/n): ").strip().lower()
+        balance_answer = input("Lanjutkan pembelian? (y/n): ").strip().lower()
         if balance_answer != "y":
             print_panel("Info", "Pembelian dibatalkan oleh user.")
             pause()
@@ -212,7 +212,7 @@ def purchase_n_times(
 
         balance_treshold = decoy_package_detail["package_option"]["price"]
         print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
-        balance_answer = input("Apakah anda yakin ingin melanjutkan pembelian? (y/n): ").strip().lower()
+        balance_answer = input("Lanjutkan pembelian? (y/n): ").strip().lower()
         if balance_answer != "y":
             print_panel("Info", "Pembelian dibatalkan oleh user.")
             pause()

@@ -25,6 +25,16 @@ def show_bundle_menu():
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
     theme = get_theme()
+    payment_items = [
+        PaymentItem(
+            item_code=package_option_code,
+            product_type="",
+            item_price=price,
+            item_name=f"{variant_name} {option_name}".strip(),
+            tax=0,
+            token_confirmation=token_confirmation,
+        )
+    ]
 
     cart_items = []
     display_cart = []

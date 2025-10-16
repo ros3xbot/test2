@@ -1,45 +1,46 @@
-import base64
-import hashlib
 import os
+import base64
 import requests
 from dotenv import load_dotenv
-from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
-from random import randint
 from binascii import unhexlify
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
+from random import randint
 
+# ⬅️ Wajib load .env agar os.getenv bisa membaca
 load_dotenv()
-# Helper validasi AES_KEY dari environment
+
+# 🔐 Helper validasi AES_KEY dari environment
 def ensure_env_key(var_name: str, expected_length: int = 32) -> bytes:
     value = os.getenv(var_name)
     if value is None:
         raise EnvironmentError(f"Variabel environment '{var_name}' tidak ditemukan.")
     if len(value) != expected_length:
-        raise ValueError(f"'{var_name}' harus berupa hex string sepanjang {expected_length} karakter.")
+        raise ValueError(f"'{var_name}' harus hex string sepanjang {expected_length} karakter.")
     try:
         return unhexlify(value)
     except Exception as e:
         raise ValueError(f"Gagal konversi '{var_name}' ke bytes: {e}")
 
-# Fungsi dekripsi URL
+# 🔓 Fungsi dekripsi URL terenkripsi
 def decrypt_url(enc_url: str, key: bytes, iv: bytes) -> str:
     ct = base64.b64decode(enc_url)
     pt = unpad(AES.new(key, AES.MODE_CBC, iv).decrypt(ct), AES.block_size)
     return pt.decode()
 
-# Ambil variabel dari environment
+# 🔧 Ambil variabel dari environment
 API_KEY = os.getenv("API_KEY")
 AX_FP_KEY = os.getenv("AX_FP_KEY")
-AES_KEY = ensure_env_key("AES_KEY")  # gunakan AES_KEY, bukan AES_KEY_ASCII
+AES_KEY = ensure_env_key("AES_KEY")  # gunakan AES_KEY hex 32 karakter
 
-# Dekripsi URL
-ENC_URL = "suMO7ErnFpbZwTBWhXJDHrB7dEZcVyBVWMKiBVqDfIM="
+# 🔓 Dekripsi URL utama
+ENC_URL = "2k48hiX9KDnMroxmqQMymrDJqB8LtLvmcQqib9/XOGs="
 IV = b"\x00" * 16
 BASE_CRYPTO_URL = decrypt_url(ENC_URL, AES_KEY, IV)
 
-# Endpoint turunan
+# 🌐 Endpoint turunan
 XDATA_DECRYPT_URL      = f"{BASE_CRYPTO_URL}/xdatadec"
 XDATA_ENCRYPT_SIGN_URL = f"{BASE_CRYPTO_URL}/xdataenc"
 PAYMENT_SIGN_URL       = f"{BASE_CRYPTO_URL}/paysign"

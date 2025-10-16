@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from binascii import unhexlify
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from app.menus.util import get_api
+from app.menus.util_helper import get_api
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from random import randint

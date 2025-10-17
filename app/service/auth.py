@@ -3,7 +3,7 @@ import os
 import time
 
 from app.client.engsel import get_new_token
-from app.menus.util_helper import live_loading, print_panel
+from app.menus.util_helper import live_loading
 from app.config.theme_config import get_theme
 
 
@@ -78,14 +78,14 @@ class Auth:
         theme = get_theme()
         rt_entry = next((rt for rt in self.refresh_tokens if rt["number"] == number), None)
         if not rt_entry:
-            print_panel("⚠️ Token tidak ditemukan", f"Tidak ada refresh token untuk nomor: {number}", theme["border_err"])
+            print("⚠️ Token tidak ditemukan", f"Tidak ada refresh token untuk nomor: {number}", theme["border_err"])
             return False
 
         with live_loading(f"🔐 Mengambil token untuk {number}...", theme):
             tokens = get_new_token(rt_entry["refresh_token"])
 
         if not tokens:
-            print_panel("❌ Gagal ambil token", f"Token untuk {number} tidak valid atau kadaluarsa.", theme["border_err"])
+            print("❌ Gagal ambil token", f"Token untuk {number} tidak valid atau kadaluarsa.", theme["border_err"])
             return False
 
         self.active_user = {
@@ -106,12 +106,12 @@ class Auth:
                 self.active_user["tokens"] = tokens
                 self.last_refresh_time = int(time.time())
                 self.add_refresh_token(self.active_user["number"], self.active_user["tokens"]["refresh_token"])
-                print_panel("✅ Token aktif berhasil diperbarui.", theme["border_success"])
+                print("✅ Token aktif berhasil diperbarui.", theme["border_success"])
                 return True
             else:
-                print_panel("❌ Gagal memperbarui token aktif.", theme["border_err"])
+                print("❌ Gagal memperbarui token aktif.", theme["border_err"])
         else:
-            print_panel("⚠️ Tidak ada user aktif atau token hilang.", theme["border_warning"])
+            print("⚠️ Tidak ada user aktif atau token hilang.", theme["border_warning"])
         return False
 
     def get_active_user(self):

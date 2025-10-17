@@ -4,7 +4,6 @@ import time
 
 from app.client.engsel import get_new_token
 from app.menus.util_helper import live_loading, print_panel
-from app.menus.util import pause
 from app.config.theme_config import get_theme
 
 
@@ -80,7 +79,6 @@ class Auth:
         rt_entry = next((rt for rt in self.refresh_tokens if rt["number"] == number), None)
         if not rt_entry:
             print_panel("⚠️ Token tidak ditemukan", f"Tidak ada refresh token untuk nomor: {number}", theme["border_err"])
-            pause()
             return False
 
         with live_loading(f"🔐 Mengambil token untuk {number}...", theme):
@@ -88,7 +86,6 @@ class Auth:
 
         if not tokens:
             print_panel("❌ Gagal ambil token", f"Token untuk {number} tidak valid atau kadaluarsa.", theme["border_err"])
-            pause()
             return False
 
         self.active_user = {
@@ -113,10 +110,8 @@ class Auth:
                 return True
             else:
                 print_panel("❌ Gagal memperbarui token aktif.", theme["border_err"])
-                pause()
         else:
             print_panel("⚠️ Tidak ada user aktif atau token hilang.", theme["border_warning"])
-            pause()
         return False
 
     def get_active_user(self):

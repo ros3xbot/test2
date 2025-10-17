@@ -61,7 +61,7 @@ def git_pull_rebase():
         run_git()
 
     if result["status"] == "success":
-        print_panel("✅ Git pull --rebase berhasil.", theme["border_success"])
+        print_panel("✅ Berhasil upadate.", theme["border_success"])
         if result["output"]:
             print_panel(result["output"], theme["border_info"])
     elif result["status"] == "fail":

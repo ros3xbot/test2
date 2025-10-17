@@ -61,7 +61,6 @@ def git_pull_rebase():
     with live_loading("🔄 Menarik update dari repository...", theme):
         run_git()
 
-    # Panel hasil
     if result["status"] == "success":
         text = Text.from_markup(
             f"✅ [bold green]Git pull --rebase berhasil[/]\n\n[white]{result['output']}[/]"
@@ -80,7 +79,7 @@ def git_pull_rebase():
         )
         console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_warning"], padding=(1, 2), expand=True))
 
-    pause()
+    #pause()
 
 
 def fetch_user_context(force_refresh=False):

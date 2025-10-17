@@ -40,10 +40,7 @@ def git_pull_rebase():
 
     def run_git():
         try:
-            # Cek apakah folder ini repo Git
             subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
-
-            # Jalankan git pull --rebase dan simpan output
             output = subprocess.run(
                 ['git', 'pull', '--rebase'],
                 stdout=subprocess.PIPE,
@@ -71,7 +68,6 @@ def git_pull_rebase():
         print_panel(f"❌ Gagal menjalankan git pull --rebase:\n{result['error']}", theme["border_err"])
     else:
         print_panel(f"⚠️ Error lain:\n{result['error']}", theme["border_warning"])
-    #pause()
 
 
 def fetch_user_context(force_refresh=False):

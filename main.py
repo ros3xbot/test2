@@ -58,7 +58,7 @@ def git_pull_rebase():
         print_panel(f"❌ Gagal menjalankan git pull --rebase:\n{result['error']}", theme["border_err"])
     else:
         print_panel(f"⚠️ Error lain:\n{result['error']}", theme["border_warning"])
-    pause()
+    #pause()
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time

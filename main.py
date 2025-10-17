@@ -34,6 +34,7 @@ theme = get_theme()
 cached_user_context = None
 last_fetch_time = 0
 
+
 def git_pull_rebase():
     theme = get_theme()
     result = {"status": None, "error": None, "output": ""}
@@ -60,14 +61,26 @@ def git_pull_rebase():
     with live_loading("🔄 Menarik update dari repository...", theme):
         run_git()
 
+    # Panel hasil
     if result["status"] == "success":
-        print_panel("✅ Berhasil upadate.", theme["border_success"])
-        if result["output"]:
-            print_panel(result["output"], theme["border_info"])
+        text = Text.from_markup(
+            f"✅ [bold green]Git pull --rebase berhasil[/]\n\n[white]{result['output']}[/]"
+        )
+        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_success"], padding=(1, 2), expand=True))
+
     elif result["status"] == "fail":
-        print_panel(f"❌ Gagal menjalankan git pull --rebase:\n{result['error']}", theme["border_err"])
+        text = Text.from_markup(
+            f"❌ [bold red]Git pull gagal[/]\n\n[red]{result['error']}[/]"
+        )
+        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_err"], padding=(1, 2), expand=True))
+
     else:
-        print_panel(f"⚠️ Error lain:\n{result['error']}", theme["border_warning"])
+        text = Text.from_markup(
+            f"⚠️ [bold yellow]Error saat menjalankan git pull[/]\n\n[yellow]{result['error']}[/]"
+        )
+        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_warning"], padding=(1, 2), expand=True))
+
+    pause()
 
 
 def fetch_user_context(force_refresh=False):

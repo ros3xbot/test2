@@ -4,6 +4,7 @@ import sys
 from rich.panel import Panel
 from rich.text import Text
 from rich.console import Console
+from app.menus.util import pause
 from app.menus.util_helper import live_loading, print_panel, pause
 from app.config.theme_config import get_theme
 

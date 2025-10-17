@@ -79,7 +79,7 @@ def git_pull_rebase():
         )
         console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_warning"], padding=(0, 2), expand=True))
 
-    #pause()
+    pause()
 
 
 def fetch_user_context(force_refresh=False):

@@ -211,7 +211,8 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
             except Exception as e:
                 print_panel("⚠️ Error", f"Gagal melakukan pembelian decoy: {e}")
                 pause()
-                return False
+                #return False
+                return "BACK"
 
         elif choice == "6":
             use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"

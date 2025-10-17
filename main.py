@@ -53,7 +53,7 @@ def git_pull_rebase():
         run_git()
 
     if result["status"] == "success":
-        print_panel("✅ Berhasil update aplikasi.", theme["border_success"])
+        print_panel("✅ Berhasil update aplikasi", theme["border_success"])
     elif result["status"] == "fail":
         print_panel(f"❌ Gagal menjalankan git pull --rebase:\n{result['error']}", theme["border_err"])
     else:

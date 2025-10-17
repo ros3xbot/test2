@@ -259,7 +259,7 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
                 info_text = Text()
                 info_text.append(f"Harga Paket Utama: Rp {get_rupiah(price)}\n", style=theme["text_money"])
-                info_text.append(f"Harga Decoy Edu: Rp {get_rupiah(decoy_detail['package_option']['price'])}\n", style=theme["text_money"])
+                info_text.append(f"Harga Paket Decoy: Rp {get_rupiah(decoy_detail['package_option']['price'])}\n", style=theme["text_money"])
                 info_text.append("Silahkan sesuaikan amount jika diperlukan (trial & error)", style=theme["text_body"])
 
                 console.print(Panel(info_text, title="📦 Info Pembayaran QRIS + Decoy", border_style=theme["border_warning"], expand=True))

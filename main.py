@@ -166,6 +166,7 @@ def show_main_menu(profile, display_quota, segments):
     menu_table.add_row("11", "🔁 Order berulang dari Family Code")
     menu_table.add_row("00", "⭐ Bookmark Paket")
     menu_table.add_row("", "")
+    menu_table.add_row("", "")
     menu_table.add_row("77", f"[{theme['border_warning']}]📢 Info Unlock Code [/]")  
     menu_table.add_row("88", f"[{theme['text_sub']}]🎨 Ganti Tema CLI [/]")          
     menu_table.add_row("99", f"[{theme['text_err']}]⛔ Tutup aplikasi [/]")

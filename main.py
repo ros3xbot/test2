@@ -3,7 +3,7 @@ import sys
 import time
 from datetime import datetime
 from app.menus.util import pause, clear_sc
-from app.menus.util_helper import print_panel, get_rupiah, clear_screen, live_loading
+from app.menus.util_helper import print_panel, get_rupiah, clear_screen
 from app.client.engsel import get_balance, get_profile, get_quota
 from app.client.engsel2 import get_tiering_info, segments
 from app.menus.payment import show_transaction_history
@@ -26,7 +26,6 @@ from rich.panel import Panel
 from rich.box import MINIMAL_DOUBLE_HEAD
 from rich.align import Align
 from rich.text import Text
-from io import StringIO
 
 console = Console()
 theme = get_theme()
@@ -37,7 +36,6 @@ last_fetch_time = 0
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
     now = time.time()
-    theme = get_theme()
 
     if not force_refresh and cached_user_context and now - last_fetch_time < 60:
         return cached_user_context
@@ -178,7 +176,6 @@ def show_main_menu(profile, display_quota, segments):
 
 def main():
     global cached_user_context, last_fetch_time
-    theme = get_theme()
 
     while True:
         user_context = fetch_user_context()
@@ -320,7 +317,6 @@ def main():
                     if lanjut != "y":
                         print_panel("Info", "Pembelian dibatalkan.")
                         pause()
-                        continue
 
                     purchase_loop(how_many, family_code, order, use_decoy, delay)
 
@@ -361,5 +357,6 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")
+        sys.exit(0)
 
 

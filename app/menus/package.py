@@ -188,21 +188,25 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 overwrite_amount = price + decoy_detail["package_option"]["price"]
                 res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, overwrite_amount, token_confirmation_idx=-1)
 
-                if res and res.get("status", "") != "SUCCESS":
+                if not res or res.get("status") != "SUCCESS":
                     error_msg = res.get("message", "")
                     if "Bizz-err.Amount.Total" in error_msg:
                         error_msg_arr = error_msg.split("=")
                         valid_amount = int(error_msg_arr[1].strip())
                         print_panel("Info", f"Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}")
                         res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
-                        if res and res.get("status", "") == "SUCCESS":
+                        if res and res.get("status") == "SUCCESS":
                             print_panel("✅ Info", "Pembelian berhasil dengan jumlah yang disesuaikan.")
+                        else:
+                            print_panel("⚠️ Gagal", f"Pembelian gagal setelah penyesuaian jumlah.\n{res.get('message', '')}")
+                    else:
+                        print_panel("⚠️ Gagal", f"Pembelian gagal.\n{error_msg}")
+                else:
+                    error_msg = res.get("message", "")
+                    if error_msg and "err" in error_msg.lower():
+                        print_panel("⚠️ Gagal", f"Status SUCCESS tapi ada pesan error:\n{error_msg}")
                     else:
                         print_panel("✅ Info", "Pembelian berhasil.")
-                else:
-                    print_panel("✅ Info", "Pembelian berhasil.")
-                pause()
-                return True
 
             except Exception as e:
                 print_panel("⚠️ Error", f"Gagal melakukan pembelian decoy: {e}")

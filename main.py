@@ -27,6 +27,7 @@ from rich.panel import Panel
 from rich.box import MINIMAL_DOUBLE_HEAD
 from rich.align import Align
 from rich.text import Text
+from io import StringIO
 
 console = Console()
 theme = get_theme()
@@ -35,30 +36,43 @@ last_fetch_time = 0
 
 def git_pull_rebase():
     theme = get_theme()
-    result = {"status": None, "error": None}
+    result = {"status": None, "error": None, "output": ""}
 
     def run_git():
         try:
+            # Cek apakah folder ini repo Git
             subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
-            subprocess.run(['git', 'pull', '--rebase'], check=True)
+
+            # Jalankan git pull --rebase dan simpan output
+            output = subprocess.run(
+                ['git', 'pull', '--rebase'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
             result["status"] = "success"
+            result["output"] = output.stdout.strip()
         except subprocess.CalledProcessError as e:
             result["status"] = "fail"
-            result["error"] = str(e)
+            result["error"] = e.stderr.strip()
         except Exception as e:
             result["status"] = "error"
             result["error"] = str(e)
 
-    with live_loading("", theme):
+    with live_loading("🔄 Menarik update dari repository...", theme):
         run_git()
 
     if result["status"] == "success":
-        print_panel("✅ Berhasil update aplikasi", theme["border_success"])
+        print_panel("✅ Git pull --rebase berhasil.", theme["border_success"])
+        if result["output"]:
+            print_panel(result["output"], theme["border_info"])
     elif result["status"] == "fail":
         print_panel(f"❌ Gagal menjalankan git pull --rebase:\n{result['error']}", theme["border_err"])
     else:
         print_panel(f"⚠️ Error lain:\n{result['error']}", theme["border_warning"])
     #pause()
+
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time

@@ -4,7 +4,7 @@ import sys
 import time
 from datetime import datetime
 from app.menus.util import pause, clear_sc
-from app.menus.util_helper import print_panel, get_rupiah, clear_screen
+from app.menus.util_helper import print_panel, get_rupiah, clear_screen, live_loading
 from app.client.engsel import get_balance, get_profile, get_quota
 from app.client.engsel2 import get_tiering_info, segments
 from app.menus.payment import show_transaction_history
@@ -34,14 +34,31 @@ cached_user_context = None
 last_fetch_time = 0
 
 def git_pull_rebase():
-    try:
-        subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
-        subprocess.run(['git', 'pull', '--rebase'], check=True)
-        print("✅ Git pull --rebase berhasil.\n")
-    except subprocess.CalledProcessError:
-        print("⚠️ Folder ini bukan repository Git atau terjadi error saat pull.\n")
-    except Exception as e:
-        print(f"⚠️ Error lain:\n{e}\n")
+    theme = get_theme()
+    result = {"status": None, "error": None}
+
+    def run_git():
+        try:
+            subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
+            subprocess.run(['git', 'pull', '--rebase'], check=True)
+            result["status"] = "success"
+        except subprocess.CalledProcessError as e:
+            result["status"] = "fail"
+            result["error"] = str(e)
+        except Exception as e:
+            result["status"] = "error"
+            result["error"] = str(e)
+
+    with live_loading("Menjalankan git pull --rebase...", theme):
+        run_git()
+
+    if result["status"] == "success":
+        print_panel("✅ Git pull --rebase berhasil.", theme["border_success"])
+    elif result["status"] == "fail":
+        print_panel(f"❌ Gagal menjalankan git pull --rebase:\n{result['error']}", theme["border_err"])
+    else:
+        print_panel(f"⚠️ Error lain:\n{result['error']}", theme["border_warning"])
+    pause()
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time

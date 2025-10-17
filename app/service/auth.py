@@ -3,7 +3,8 @@ import os
 import time
 
 from app.client.engsel import get_new_token
-from app.menus.util_helper import live_loading, print_panel, pause
+from app.menus.util_helper import live_loading, print_panel
+from app.menus.util import pause
 from app.config.theme_config import get_theme
 
 

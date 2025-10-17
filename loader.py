@@ -3,7 +3,8 @@ import os
 import sys
 from rich.panel import Panel
 from rich.text import Text
-from app.menus.util_helper import live_loading, print_panel, pause
+from app.menus.util import pause
+from app.menus.util_helper import live_loading, print_panel
 from app.config.theme_config import get_theme
 
 def is_rebase_in_progress():

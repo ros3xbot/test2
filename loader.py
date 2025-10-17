@@ -26,7 +26,7 @@ def git_pull_rebase():
         pause()
         sys.exit(1)
 
-    def run_git():
+    def run_git_pull():
         try:
             subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
             output = subprocess.run(
@@ -45,8 +45,31 @@ def git_pull_rebase():
             result["status"] = "error"
             result["error"] = str(e)
 
+    def run_git_reset():
+        try:
+            branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], text=True).strip()
+            output = subprocess.run(
+                ['git', 'fetch'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
+            reset_output = subprocess.run(
+                ['git', 'reset', '--hard', f'origin/{branch}'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
+            result["status"] = "reset"
+            result["output"] = reset_output.stdout.strip()
+        except Exception as e:
+            result["status"] = "reset_fail"
+            result["error"] = str(e)
+
     with live_loading("🔄 Menarik update dari repository...", theme):
-        run_git()
+        run_git_pull()
 
     if result["status"] == "success":
         text = Text.from_markup(
@@ -56,11 +79,25 @@ def git_pull_rebase():
 
     elif result["status"] == "fail":
         text = Text.from_markup(
-            f"❌ [bold red]Git pull gagal[/]\n\n[red]{result['error']}[/]"
+            f"❌ [bold red]Git pull gagal[/]\n\n[red]{result['error']}[/]\n\n[yellow]Mencoba reset paksa...[/]"
         )
         console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_err"], padding=(1, 2), expand=True))
-        pause()
-        sys.exit(1)
+
+        with live_loading("🧹 Menjalankan git reset --hard...", theme):
+            run_git_reset()
+
+        if result["status"] == "reset":
+            text = Text.from_markup(
+                f"✅ [bold green]Reset berhasil, CLI disinkronkan ke origin[/]\n\n[white]{result['output']}[/]"
+            )
+            console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_success"], padding=(1, 2), expand=True))
+        else:
+            text = Text.from_markup(
+                f"❌ [bold red]Reset gagal[/]\n\n[red]{result['error']}[/]"
+            )
+            console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_err"], padding=(1, 2), expand=True))
+            pause()
+            sys.exit(1)
 
     else:
         text = Text.from_markup(

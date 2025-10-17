@@ -36,6 +36,7 @@ last_fetch_time = 0
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
     now = time.time()
+    theme = get_theme()
 
     if not force_refresh and cached_user_context and now - last_fetch_time < 60:
         return cached_user_context
@@ -355,5 +356,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+        theme = get_theme()
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")

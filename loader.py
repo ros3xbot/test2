@@ -3,9 +3,11 @@ import os
 import sys
 from rich.panel import Panel
 from rich.text import Text
-from app.menus.util import pause
-from app.menus.util_helper import live_loading, print_panel
+from rich.console import Console
+from app.menus.util_helper import live_loading, print_panel, pause
 from app.config.theme_config import get_theme
+
+console = Console()
 
 def is_rebase_in_progress():
     return os.path.exists(".git/rebase-apply") or os.path.exists(".git/rebase-merge")
@@ -16,10 +18,10 @@ def git_pull_rebase():
 
     if is_rebase_in_progress():
         text = Text.from_markup(
-            "⚠️ [bold yellow]Rebase sebelumnya belum selesai[/]\n\n"
+            "[bold yellow]⚠️ Rebase sebelumnya belum selesai[/]\n\n"
             "[yellow]Selesaikan dengan `git rebase --continue` atau batalkan dengan `git rebase --abort`[/]"
         )
-        print_panel(text, theme["border_warning"])
+        console.print(Panel(text, title="📥 Status Update CLI", border_style=theme["border_warning"], padding=(1, 2), expand=True))
         pause()
         sys.exit(1)
 
@@ -47,21 +49,23 @@ def git_pull_rebase():
 
     if result["status"] == "success":
         text = Text.from_markup(
-            f"✅ [bold green]Berhasil di update[/]\n\n[white]{result['output']}[/]"
+            f"✅ [bold green]Git pull --rebase berhasil[/]\n\n[white]{result['output']}[/]"
         )
-        print_panel(text, theme["border_success"])
+        console.print(Panel(text, title="📥 Status Update CLI", border_style=theme["border_success"], padding=(1, 2), expand=True))
+
     elif result["status"] == "fail":
         text = Text.from_markup(
             f"❌ [bold red]Git pull gagal[/]\n\n[red]{result['error']}[/]"
         )
-        print_panel(text, theme["border_err"])
+        console.print(Panel(text, title="📥 Status Update CLI", border_style=theme["border_err"], padding=(1, 2), expand=True))
         pause()
         sys.exit(1)
+
     else:
         text = Text.from_markup(
             f"⚠️ [bold yellow]Error saat menjalankan git pull[/]\n\n[yellow]{result['error']}[/]"
         )
-        print_panel(text, theme["border_warning"])
+        console.print(Panel(text, title="📥 Status Update CLI", border_style=theme["border_warning"], padding=(1, 2), expand=True))
         pause()
         sys.exit(1)
 

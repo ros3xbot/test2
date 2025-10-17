@@ -63,15 +63,15 @@ def git_pull_rebase():
 
     if result["status"] == "success":
         text = Text.from_markup(
-            f"✅ [bold green]Berhasil update aplikasi.[/]\n\n[white]{result['output']}[/]"
+            f"✅ [bold green]Berhasil di update[/]\n\n[white]{result['output']}[/]"
         )
-        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_success"], padding=(0, 2), expand=True))
+        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_success"], padding=(0, 1), expand=True))
 
     elif result["status"] == "fail":
         text = Text.from_markup(
             f"❌ [bold red]Git pull gagal[/]\n\n[red]{result['error']}[/]"
         )
-        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_err"], padding=(0, 2), expand=True))
+        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_err"], padding=(0, 1), expand=True))
 
     else:
         text = Text.from_markup(

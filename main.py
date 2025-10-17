@@ -63,7 +63,7 @@ def git_pull_rebase():
 
     if result["status"] == "success":
         text = Text.from_markup(
-            f"✅ [bold green]Git pull --rebase berhasil[/]\n\n[white]{result['output']}[/]"
+            f"✅ [bold green]Berhasil update aplikasi.[/]\n\n[white]{result['output']}[/]"
         )
         console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_success"], padding=(1, 2), expand=True))
 

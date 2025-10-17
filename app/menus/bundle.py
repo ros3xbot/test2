@@ -43,7 +43,7 @@ def append_decoy_to_items(payment_items, decoy_detail):
         token_confirmation=decoy_detail["token_confirmation"],
     )
     payment_items.append(item)
-    return price  # ⬅️ Kembalikan harga langsung
+    return price
 
 
 def show_bundle_menu():
@@ -76,7 +76,7 @@ def show_bundle_menu():
             console.print(Panel(table, border_style=theme["border_primary"], padding=(0, 1), expand=True))
             console.print(f"[{theme['text_body']}]Total Harga: Rp {get_rupiah(total_price)}[/]")
         else:
-            print_panel("ℹ️ Info", "Keranjang masih kosong.")
+            print_panel("Info", "Keranjang masih kosong.")
 
         nav = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav.add_column(justify="right", style=theme["text_key"], width=6)
@@ -190,7 +190,7 @@ def show_bundle_menu():
 
                 confirm = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian dengan metode ini? (y/n):[/{theme['text_sub']}] ").strip().lower()
                 if confirm != "y":
-                    print_panel("ℹ️ Info", "Pembayaran dibatalkan.")
+                    print_panel("Info", "Pembayaran dibatalkan.")
                     pause()
                     continue
 

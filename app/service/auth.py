@@ -3,6 +3,8 @@ import os
 import time
 
 from app.client.engsel import get_new_token
+from app.menus.util_helper import live_loading, print_panel, pause
+from app.config.theme_config import get_theme
 
 
 class Auth:
@@ -28,17 +30,13 @@ class Auth:
                     json.dump([], f, indent=4)
 
             self.load_active_number()
-
             self.last_refresh_time = int(time.time())
-
             self._initialized_ = True
 
     def load_tokens(self):
         with open("refresh-tokens.json", "r", encoding="utf-8") as f:
             refresh_tokens = json.load(f)
-
-            if len(refresh_tokens) != 0:
-                self.refresh_tokens = []
+            self.refresh_tokens = []
 
             for rt in refresh_tokens:
                 if "number" in rt and "refresh_token" in rt:
@@ -57,7 +55,6 @@ class Auth:
             })
 
         self.write_tokens_to_file()
-
         self.set_active_user(number)
 
     def remove_refresh_token(self, number: int):
@@ -69,7 +66,8 @@ class Auth:
         if self.active_user and self.active_user["number"] == number:
             if len(self.refresh_tokens) != 0:
                 first_rt = self.refresh_tokens[0]
-                tokens = get_new_token(first_rt["refresh_token"])
+                with live_loading(f"🔐 Mengambil token untuk {first_rt['number']}...", get_theme()):
+                    tokens = get_new_token(first_rt["refresh_token"])
                 if tokens:
                     self.set_active_user(first_rt["number"])
             else:
@@ -77,16 +75,19 @@ class Auth:
                 self.active_user = None
 
     def set_active_user(self, number: int):
+        theme = get_theme()
         rt_entry = next((rt for rt in self.refresh_tokens if rt["number"] == number), None)
         if not rt_entry:
-            print(f"No refresh token found for number: {number}")
-            input("Press Enter to continue...")
+            print_panel("⚠️ Token tidak ditemukan", f"Tidak ada refresh token untuk nomor: {number}", theme["border_err"])
+            pause()
             return False
 
-        tokens = get_new_token(rt_entry["refresh_token"])
+        with live_loading(f"🔐 Mengambil token untuk {number}...", theme):
+            tokens = get_new_token(rt_entry["refresh_token"])
+
         if not tokens:
-            print(f"Failed to get tokens for number: {number}. The refresh token might be invalid or expired.")
-            input("Press Enter to continue...")
+            print_panel("❌ Gagal ambil token", f"Token untuk {number} tidak valid atau kadaluarsa.", theme["border_err"])
+            pause()
             return False
 
         self.active_user = {
@@ -95,30 +96,35 @@ class Auth:
         }
 
         self.write_active_number()
+        return True
 
     def renew_active_user_token(self):
+        theme = get_theme()
         if self.active_user:
-            tokens = get_new_token(self.active_user["tokens"]["refresh_token"])
+            with live_loading("🔄 Memperbarui token aktif...", theme):
+                tokens = get_new_token(self.active_user["tokens"]["refresh_token"])
+
             if tokens:
                 self.active_user["tokens"] = tokens
                 self.last_refresh_time = int(time.time())
                 self.add_refresh_token(self.active_user["number"], self.active_user["tokens"]["refresh_token"])
-
-                print("Active user token renewed successfully.")
+                print_panel("✅ Token aktif berhasil diperbarui.", theme["border_success"])
                 return True
             else:
-                print("Failed to renew active user token.")
-                input("Press Enter to continue...")
+                print_panel("❌ Gagal memperbarui token aktif.", theme["border_err"])
+                pause()
         else:
-            print("No active user set or missing refresh token.")
-            input("Press Enter to continue...")
+            print_panel("⚠️ Tidak ada user aktif atau token hilang.", theme["border_warning"])
+            pause()
         return False
 
     def get_active_user(self):
+        theme = get_theme()
         if not self.active_user:
             if len(self.refresh_tokens) != 0:
                 first_rt = self.refresh_tokens[0]
-                tokens = get_new_token(first_rt["refresh_token"])
+                with live_loading(f"🔐 Mengambil token untuk {first_rt['number']}...", theme):
+                    tokens = get_new_token(first_rt["refresh_token"])
                 if tokens:
                     self.active_user = {
                         "number": int(first_rt["number"]),
@@ -127,7 +133,8 @@ class Auth:
             return None
 
         if self.last_refresh_time is None or (int(time.time()) - self.last_refresh_time) > 300:
-            self.renew_active_user_token()
+            with live_loading("🔄 Memperbarui token aktif...", theme):
+                self.renew_active_user_token()
             self.last_refresh_time = time.time()
 
         return self.active_user
@@ -164,5 +171,6 @@ class Auth:
         self.write_tokens_to_file()
         if self.active_user and self.active_user["number"] == number:
             self.active_user["name"] = new_name
+
 
 AuthInstance = Auth()

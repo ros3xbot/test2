@@ -1,4 +1,3 @@
-import subprocess
 import random
 import sys
 import time
@@ -28,74 +27,12 @@ from rich.box import MINIMAL_DOUBLE_HEAD
 from rich.align import Align
 from rich.text import Text
 from io import StringIO
-import os
 
 console = Console()
 theme = get_theme()
 cached_user_context = None
 last_fetch_time = 0
 
-
-
-def is_rebase_in_progress():
-    return os.path.exists(".git/rebase-apply") or os.path.exists(".git/rebase-merge")
-
-def git_pull_rebase():
-    theme = get_theme()
-    result = {"status": None, "error": None, "output": ""}
-
-    if is_rebase_in_progress():
-        text = Text.from_markup(
-            "⚠️ [bold yellow]Rebase sebelumnya belum selesai[/]\n\n"
-            "[yellow]Silakan selesaikan dengan `git rebase --continue` atau batalkan dengan `git rebase --abort`[/]"
-        )
-        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_warning"], padding=(0, 2), expand=True))
-        pause()
-        sys.exit(1)
-
-    def run_git():
-        try:
-            subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
-            output = subprocess.run(
-                ['git', 'pull', '--rebase'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=True
-            )
-            result["status"] = "success"
-            result["output"] = output.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            result["status"] = "fail"
-            result["error"] = e.stderr.strip()
-        except Exception as e:
-            result["status"] = "error"
-            result["error"] = str(e)
-
-    with live_loading("🔄 Menarik update dari repository...", theme):
-        run_git()
-
-    if result["status"] == "success":
-        text = Text.from_markup(
-            f"✅ [bold green]Berhasil di update[/]\n\n[white]{result['output']}[/]"
-        )
-        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_success"], padding=(0, 1), expand=True))
-
-    elif result["status"] == "fail":
-        text = Text.from_markup(
-            f"❌ [bold red]Git pull gagal[/]\n\n[red]{result['error']}[/]"
-        )
-        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_err"], padding=(0, 1), expand=True))
-        pause()
-        sys.exit(1)
-
-    else:
-        text = Text.from_markup(
-            f"⚠️ [bold yellow]Error saat menjalankan git pull[/]\n\n[yellow]{result['error']}[/]"
-        )
-        console.print(Panel(text, title="📥 Update CLI", border_style=theme["border_warning"], padding=(0, 2), expand=True))
-        pause()
-        sys.exit(1)
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
@@ -421,7 +358,6 @@ def main():
 
 if __name__ == "__main__":
     try:
-        git_pull_rebase()
         main()
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")

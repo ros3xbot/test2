@@ -28,6 +28,7 @@ from rich.box import MINIMAL_DOUBLE_HEAD
 from rich.align import Align
 from rich.text import Text
 from io import StringIO
+import os
 
 console = Console()
 theme = get_theme()

@@ -194,6 +194,7 @@ def main():
                 pause()
                 continue
 
+        theme = get_theme()
         show_main_menu(user_context, user_context["display_quota"], user_context["segments"])
         choice = console.input(f"[{theme['text_sub']}]Pilih menu:[/{theme['text_sub']}] ").strip().lower()
 
@@ -356,6 +357,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        theme = get_theme()
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")

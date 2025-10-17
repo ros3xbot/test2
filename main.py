@@ -1,3 +1,4 @@
+import subprocess
 import random
 import sys
 import time
@@ -32,6 +33,15 @@ theme = get_theme()
 cached_user_context = None
 last_fetch_time = 0
 
+def git_pull_rebase():
+    try:
+        subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(['git', 'pull', '--rebase'], check=True)
+        print("✅ Git pull --rebase berhasil.\n")
+    except subprocess.CalledProcessError:
+        print("⚠️ Folder ini bukan repository Git atau terjadi error saat pull.\n")
+    except Exception as e:
+        print(f"⚠️ Error lain:\n{e}\n")
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
@@ -356,6 +366,8 @@ def main():
 
 if __name__ == "__main__":
     try:
+        git_pull_rebase()  # ⬅️ Tambahkan ini
         main()
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")
+

@@ -40,26 +40,35 @@ def ensure_git():
     git_config = os.path.join(git_folder, "config")
 
     if not os.path.exists(git_folder):
-        print("❌ Script ini hanya bisa dijalankan dari hasil git clone.")
+        text = Text()
+        text.append("❌ Script ini hanya bisa dijalankan dari hasil git clone.\n", style="bold red")
+        text.append("Folder .git tidak ditemukan.", style="yellow")
+        console.print(Panel(text, title="Validasi Git", border_style="red"))
         sys.exit(1)
 
     if not os.path.exists(git_config):
-        print("❌ Script ini tidak memiliki konfigurasi git yang valid.")
-        print("File .git/config tidak ditemukan.")
+        text = Text()
+        text.append("❌ Script ini tidak memiliki konfigurasi git yang valid.\n", style="bold red")
+        text.append("File .git/config tidak ditemukan.", style="yellow")
+        console.print(Panel(text, title="Validasi Git", border_style="red"))
         sys.exit(1)
 
     with open(git_config, "r", encoding="utf-8") as f:
         config_content = f.read()
 
     if "[remote \"origin\"]" not in config_content:
-        print("❌ Repo ini tidak memiliki remote origin.")
-        print("Pastikan Anda meng-clone dari repository resmi.")
+        text = Text()
+        text.append("❌ Repo ini tidak memiliki remote origin.\n", style="bold red")
+        text.append("Pastikan Anda meng-clone dari repository resmi.", style="yellow")
+        console.print(Panel(text, title="Validasi Git", border_style="red"))
         sys.exit(1)
 
     if "https://github.com/ros3xbot/test2" not in config_content:
-        print("⚠️ Repo ini tidak berasal dari sumber resmi.")
-        print("Silakan clone ulang dari:")
-        print("  git clone https://github.com/ros3xbot/test2")
+        text = Text()
+        text.append("⚠️ Repo ini tidak berasal dari sumber resmi.\n", style="bold yellow")
+        text.append("Silakan clone ulang dari:\n", style="yellow")
+        text.append("  git clone https://github.com/ros3xbot/test2", style="bold green")
+        console.print(Panel(text, title="Validasi Git", border_style="yellow"))
         sys.exit(1)
 
 def fetch_user_context(force_refresh=False):

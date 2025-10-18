@@ -15,21 +15,34 @@ def settlement_multipayment(
         tokens: dict,
         items: list[PaymentItem],
         wallet_number: str,
-        payment_method: str,
-        payment_for: str,
+        payment_method,
+        payment_for,
         ask_overwrite: bool,
         overwrite_amount: int = -1,
         token_confirmation_idx: int = 0,
         amount_idx: int = -1,
 ):
+    # Sanity check
     if overwrite_amount == -1 and not ask_overwrite:
         print("Either ask_overwrite must be True or overwrite_amount must be set.")
         return None
 
     token_confirmation = items[token_confirmation_idx]["token_confirmation"]
-    payment_targets = ";".join([item["item_code"] for item in items])
-    amount_int = overwrite_amount if overwrite_amount != -1 else items[amount_idx]["item_price"]
+    payment_targets = ""
+    for item in items:
+        if payment_targets != "":
+            payment_targets += ";"
+        payment_targets += item["item_code"]
 
+    amount_int = 0
+
+    # Determine amount to use
+    if overwrite_amount != -1:
+        amount_int = overwrite_amount
+    elif amount_idx == -1:
+        amount_int = items[amount_idx]["item_price"]
+
+    # If Overwrite
     if ask_overwrite:
         print(f"Total amount is {amount_int}.\nEnter new amount if you need to overwrite.")
         amount_str = input("Press enter to ignore & use default amount: ")
@@ -38,9 +51,11 @@ def settlement_multipayment(
                 amount_int = int(amount_str)
             except ValueError:
                 print("Invalid overwrite input, using original price.")
+                # return None
 
     intercept_page(api_key, tokens, items[0]["item_code"], False)
 
+    # Get payment methods
     payment_path = "payments/api/v8/payment-methods-option"
     payment_payload = {
         "payment_type": "PURCHASE",
@@ -53,17 +68,22 @@ def settlement_multipayment(
 
     print("Getting payment methods...")
     payment_res = send_api_request(api_key, payment_path, payment_payload, tokens["id_token"], "POST")
-    if payment_res.get("status") != "SUCCESS":
+    if payment_res["status"] != "SUCCESS":
         print("Failed to fetch payment methods.")
         print(f"Error: {payment_res}")
-        return payment_res
+        return None
 
     token_payment = payment_res["data"]["token_payment"]
     ts_to_sign = payment_res["data"]["timestamp"]
 
+    # Settlement request
     path = "payments/api/v8/settlement-multipayment/ewallet"
     settlement_payload = {
-        "akrab": {"akrab_members": [], "akrab_parent_alias": "", "members": []},
+        "akrab": {
+            "akrab_members": [],
+            "akrab_parent_alias": "",
+            "members": []
+        },
         "can_trigger_rating": False,
         "total_discount": 0,
         "coupon": "",
@@ -73,7 +93,11 @@ def settlement_multipayment(
         "autobuy": {
             "is_using_autobuy": False,
             "activated_autobuy_code": "",
-            "autobuy_threshold_setting": {"label": "", "type": "", "value": 0}
+            "autobuy_threshold_setting": {
+                "label": "",
+                "type": "",
+                "value": 0
+            }
         },
         "cc_payment_type": "",
         "access_token": tokens["access_token"],
@@ -99,7 +123,7 @@ def settlement_multipayment(
     )
 
     xtime = int(encrypted_payload["encrypted_body"]["xtime"])
-    sig_time_sec = xtime // 1000
+    sig_time_sec = (xtime // 1000)
     x_requested_at = datetime.fromtimestamp(sig_time_sec, tz=timezone.utc).astimezone()
     settlement_payload["timestamp"] = ts_to_sign
 
@@ -138,16 +162,14 @@ def settlement_multipayment(
         return decrypted_body
     except Exception as e:
         print("[decrypt err]", e)
-        try:
-            return json.loads(resp.text)
-        except:
-            return None
+        return resp.text
+
 
 def show_multipayment(
         api_key: str,
         tokens: dict,
         items: list[PaymentItem],
-        payment_for: str,
+        payment_for,
         ask_overwrite: bool,
         overwrite_amount: int = -1,
         token_confirmation_idx: int = 0,
@@ -163,7 +185,9 @@ def show_multipayment(
         if choice == "1":
             payment_method = "DANA"
             wallet_number = input("Masukkan nomor DANA (contoh: 08123456789): ")
-            if not wallet_number.startswith("08") or not wallet_number.isdigit() or not (10 <= len(wallet_number) <= 13):
+            # Validate number format
+            if not wallet_number.startswith("08") or not wallet_number.isdigit() or len(wallet_number) < 10 or len(
+                    wallet_number) > 13:
                 print("Nomor DANA tidak valid. Pastikan nomor diawali dengan '08' dan memiliki panjang yang benar.")
                 continue
             choosing_payment_method = False
@@ -176,7 +200,9 @@ def show_multipayment(
         elif choice == "4":
             payment_method = "OVO"
             wallet_number = input("Masukkan nomor OVO (contoh: 08123456789): ")
-            if not wallet_number.startswith("08") or not wallet_number.isdigit() or not (10 <= len(wallet_number) <= 13):
+            # Validate number format
+            if not wallet_number.startswith("08") or not wallet_number.isdigit() or len(wallet_number) < 10 or len(
+                    wallet_number) > 13:
                 print("Nomor OVO tidak valid. Pastikan nomor diawali dengan '08' dan memiliki panjang yang benar.")
                 continue
             choosing_payment_method = False
@@ -197,14 +223,11 @@ def show_multipayment(
         amount_idx,
     )
 
-    if not settlement_response:
-        print("Transaksi gagal. Tidak ada respon dari sistem.")
-        return settlement_response
-
-    if settlement_response.get("status") != "SUCCESS":
+    # print(f"Settlement response: {json.dumps(settlement_response, indent=2)}")
+    if settlement_response["status"] != "SUCCESS":
         print("Failed to initiate settlement.")
         print(f"Error: {settlement_response}")
-        return settlement_response
+        return
 
     if payment_method != "OVO":
         deeplink = settlement_response["data"].get("deeplink", "")
@@ -212,7 +235,4 @@ def show_multipayment(
             print(f"Silahkan selesaikan pembayaran melalui link berikut:\n{deeplink}")
     else:
         print("Silahkan buka aplikasi OVO Anda untuk menyelesaikan pembayaran.")
-
-    return settlement_response
-
-
+    return

@@ -41,7 +41,6 @@ def ensure_git():
 
     if not os.path.exists(git_folder):
         print("❌ Script ini hanya bisa dijalankan dari hasil git clone.")
-        print("Folder .git tidak ditemukan.")
         sys.exit(1)
 
     if not os.path.exists(git_config):

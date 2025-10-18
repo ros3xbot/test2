@@ -190,14 +190,6 @@ def validate_package_detail(detail):
     )
 
 
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.align import Align
-from rich.text import Text
-
-console = Console()
-
 def show_hot_menu2():
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
@@ -331,38 +323,54 @@ def show_hot_menu2():
         if method == "00":
             continue
 
-        if ask_overwrite and overwrite_amount != -1:
-            konfirmasi_text = Text()
-            konfirmasi_text.append("⚠️ Paket ini menggunakan jumlah khusus (overwrite)\n", style=theme["text_err"])
-            konfirmasi_text.append(f"Jumlah yang akan digunakan: Rp {get_rupiah(overwrite_amount)}\n", style=theme["text_money"])
-            konfirmasi_text.append("Pastikan jumlah ini sesuai dengan kondisi akun Anda.", style=theme["text_body"])
-
-            console.print(Panel(
-                Align.center(konfirmasi_text),
-                title=f"[{theme['text_title']}]Konfirmasi Overwrite[/]",
-                border_style=theme["border_warning"],
-                padding=(0, 1),
-                expand=True
-            ))
-
-            confirm = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian dengan jumlah ini? (y/n):[/{theme['text_sub']}] ").strip().lower()
-            if confirm != "y":
-                print_panel("Info", "Pembelian dibatalkan oleh pengguna.")
-                pause()
-                continue
-
         if method == "1":
-            res = settlement_balance(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
+            if overwrite_amount == -1:
+                warning = Text()
+                warning.append(f"⚠️ Pastikan sisa balance KURANG DARI Rp{get_rupiah(payment_items[-1].item_price)}\n", style=theme["text_err"])
+                warning.append("Lanjutkan pembelian?", style=theme["text_body"])
+                console.print(Panel(warning, border_style=theme["border_warning"], padding=(1, 2)))
+                confirm = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                if confirm != "y":
+                    print_panel("Info", "Pembelian dibatalkan oleh pengguna.")
+                    pause()
+                    continue
+
+            settlement_balance(
+                api_key,
+                tokens,
+                payment_items,
+                payment_for,
+                ask_overwrite,
+                overwrite_amount,
+                token_confirmation_idx,
+                amount_idx,
+            )
         elif method == "2":
-            res = show_multipayment(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
+            show_multipayment(
+                api_key,
+                tokens,
+                payment_items,
+                payment_for,
+                ask_overwrite,
+                overwrite_amount,
+                token_confirmation_idx,
+                amount_idx,
+            )
         elif method == "3":
-            res = show_qris_payment(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
+            show_qris_payment(
+                api_key,
+                tokens,
+                payment_items,
+                payment_for,
+                ask_overwrite,
+                overwrite_amount,
+                token_confirmation_idx,
+                amount_idx,
+            )
         else:
             print_panel("⚠️ Error", "Metode tidak valid. Silahkan coba lagi.")
             pause()
             continue
 
-        success, message = validate_transaction_response(res)
-        print_panel("✅ Sukses" if success else "❌ Gagal", message)
         console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
         return

@@ -326,7 +326,10 @@ def show_hot_menu2():
         if method == "1":
             if overwrite_amount == -1:
                 warning = Text()
-                warning.append(f"⚠️ Pastikan sisa balance KURANG DARI Rp{get_rupiah(payment_items[-1].item_price)}\n", style=theme["text_err"])
+                warning.append(
+                    f"⚠️ Pastikan sisa balance KURANG DARI Rp{get_rupiah(payment_items[-1]['item_price'])}\n",
+                    style=theme["text_err"]
+                )
                 warning.append("Lanjutkan pembelian?", style=theme["text_body"])
                 console.print(Panel(warning, border_style=theme["border_warning"], padding=(1, 2)))
                 confirm = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()

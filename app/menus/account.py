@@ -43,25 +43,31 @@ def login_prompt(api_key: str):
             return None, None
 
         print_panel("✅ Info", "OTP berhasil dikirim ke nomor Anda.")
-        otp = console.input("Masukkan OTP (6 digit): ").strip()
 
-        if not otp.isdigit() or len(otp) != 6:
-            print_panel("⚠️ Error", "OTP tidak valid. Harus 6 digit angka.")
-            pause()
-            return None, None
+        for attempt in range(1, 6):
+            otp = console.input(f"Percobaan {attempt}/5 - Masukkan OTP (6 digit): ").strip()
 
-        print_panel("⏳ Info", "Memverifikasi OTP...")
-        tokens = submit_otp(api_key, phone_number, otp)
-        if not tokens:
-            print_panel("⚠️ Error", "Gagal login. Periksa OTP dan coba lagi.")
-            pause()
-            return None, None
+            if not otp.isdigit() or len(otp) != 6:
+                print_panel("⚠️ Error", "OTP tidak valid. Harus 6 digit angka.")
+                pause()
+                continue
 
-        print_panel("✅ Sukses", f"Berhasil login sebagai {phone_number}")
-        return phone_number, tokens["refresh_token"]
+            print_panel("⏳ Info", "Memverifikasi OTP...")
+            tokens = submit_otp(api_key, phone_number, otp)
+            if tokens:
+                print_panel("✅ Sukses", f"Berhasil login sebagai {phone_number}")
+                return phone_number, tokens["refresh_token"]
+            else:
+                print_panel("⚠️ Error", "OTP salah atau kadaluarsa.")
+                pause()
+
+        print_panel("⛔ Gagal Login", "Percobaan OTP melebihi batas maksimum (5x).")
+        return None, None
+
     except Exception as e:
         print_panel("⚠️ Error", f"Terjadi kesalahan: {e}")
         return None, None
+
 
 def show_account_menu():
     clear_screen()

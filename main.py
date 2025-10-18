@@ -1,3 +1,4 @@
+import os
 import random
 import sys
 import time
@@ -32,6 +33,35 @@ theme = get_theme()
 cached_user_context = None
 last_fetch_time = 0
 
+
+def ensure_git():
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    git_folder = os.path.join(root_path, ".git")
+    git_config = os.path.join(git_folder, "config")
+
+    if not os.path.exists(git_folder):
+        print("❌ Script ini hanya bisa dijalankan dari hasil git clone.")
+        print("Folder .git tidak ditemukan.")
+        sys.exit(1)
+
+    if not os.path.exists(git_config):
+        print("❌ Script ini tidak memiliki konfigurasi git yang valid.")
+        print("File .git/config tidak ditemukan.")
+        sys.exit(1)
+
+    with open(git_config, "r", encoding="utf-8") as f:
+        config_content = f.read()
+
+    if "[remote \"origin\"]" not in config_content:
+        print("❌ Repo ini tidak memiliki remote origin.")
+        print("Pastikan Anda meng-clone dari repository resmi.")
+        sys.exit(1)
+
+    if "https://github.com/ros3xbot/test2" not in config_content:
+        print("⚠️ Repo ini tidak berasal dari sumber resmi.")
+        print("Silakan clone ulang dari:")
+        print("  git clone https://github.com/ros3xbot/test2")
+        sys.exit(1)
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
@@ -98,6 +128,7 @@ def fetch_user_context(force_refresh=False):
 
 
 def show_main_menu(profile, display_quota, segments):
+    ensure_git()
     clear_screen()
     theme = get_theme()
     expired_at_dt = datetime.fromtimestamp(profile["balance_expired_at"]).strftime("%Y-%m-%d %H:%M:%S")

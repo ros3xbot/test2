@@ -1,4 +1,5 @@
 import os
+import configparser
 import random
 import sys
 import time
@@ -34,6 +35,8 @@ cached_user_context = None
 last_fetch_time = 0
 
 
+console = Console()
+
 def ensure_git():
     root_path = os.path.dirname(os.path.abspath(__file__))
     git_folder = os.path.join(root_path, ".git")
@@ -53,23 +56,28 @@ def ensure_git():
         console.print(Panel(text, title="Validasi Git", border_style="red"))
         sys.exit(1)
 
-    with open(git_config, "r", encoding="utf-8") as f:
-        config_content = f.read()
+    config = configparser.ConfigParser()
+    config.read(git_config)
 
-    if "[remote \"origin\"]" not in config_content:
+    if 'remote "origin"' not in config:
         text = Text()
         text.append("❌ Repo ini tidak memiliki remote origin.\n", style="bold red")
         text.append("Pastikan Anda meng-clone dari repository resmi.", style="yellow")
         console.print(Panel(text, title="Validasi Git", border_style="red"))
         sys.exit(1)
 
-    if "https://github.com/ros3xbot/test2" not in config_content:
+    origin_url = config['remote "origin"'].get("url", "").strip()
+    expected_url = "https://github.com/ros3xbot/test2"
+
+    if origin_url != expected_url:
         text = Text()
         text.append("⚠️ Repo ini tidak berasal dari sumber resmi.\n", style="bold yellow")
+        text.append(f"URL saat ini: {origin_url}\n", style="yellow")
         text.append("Silakan clone ulang dari:\n", style="yellow")
-        text.append("  git clone https://github.com/ros3xbot/test2", style="bold green")
+        text.append(f"  git clone {expected_url}", style="bold green")
         console.print(Panel(text, title="Validasi Git", border_style="yellow"))
         sys.exit(1)
+
 
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time

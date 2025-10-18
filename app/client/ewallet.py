@@ -15,8 +15,8 @@ def settlement_multipayment(
         tokens: dict,
         items: list[PaymentItem],
         wallet_number: str,
-        payment_method,
-        payment_for,
+        payment_method: str,
+        payment_for: str,
         ask_overwrite: bool,
         overwrite_amount: int = -1,
         token_confirmation_idx: int = 0,
@@ -28,7 +28,6 @@ def settlement_multipayment(
 
     token_confirmation = items[token_confirmation_idx]["token_confirmation"]
     payment_targets = ";".join([item["item_code"] for item in items])
-
     amount_int = overwrite_amount if overwrite_amount != -1 else items[amount_idx]["item_price"]
 
     if ask_overwrite:
@@ -54,10 +53,10 @@ def settlement_multipayment(
 
     print("Getting payment methods...")
     payment_res = send_api_request(api_key, payment_path, payment_payload, tokens["id_token"], "POST")
-    if payment_res["status"] != "SUCCESS":
+    if payment_res.get("status") != "SUCCESS":
         print("Failed to fetch payment methods.")
         print(f"Error: {payment_res}")
-        return None
+        return payment_res
 
     token_payment = payment_res["data"]["token_payment"]
     ts_to_sign = payment_res["data"]["timestamp"]
@@ -139,13 +138,16 @@ def settlement_multipayment(
         return decrypted_body
     except Exception as e:
         print("[decrypt err]", e)
-        return None
+        try:
+            return json.loads(resp.text)
+        except:
+            return None
 
 def show_multipayment(
         api_key: str,
         tokens: dict,
         items: list[PaymentItem],
-        payment_for,
+        payment_for: str,
         ask_overwrite: bool,
         overwrite_amount: int = -1,
         token_confirmation_idx: int = 0,
@@ -212,4 +214,5 @@ def show_multipayment(
         print("Silahkan buka aplikasi OVO Anda untuk menyelesaikan pembayaran.")
 
     return settlement_response
+
 

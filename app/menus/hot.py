@@ -190,10 +190,19 @@ def validate_package_detail(detail):
     )
 
 
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.align import Align
+from rich.text import Text
+
+console = Console()
+
 def show_hot_menu2():
-    theme = get_theme()
     api_key = AuthInstance.api_key
     tokens = AuthInstance.get_active_tokens()
+    theme = get_theme()
+
     if not tokens:
         print_panel("⚠️ Error", "Token tidak tersedia. Silakan login ulang.")
         pause()
@@ -353,15 +362,7 @@ def show_hot_menu2():
             pause()
             continue
 
-        if not res:
-            print_panel("❌ Gagal", "Transaksi gagal. Tidak ada respon dari sistem.")
-        elif res.get("status") != "SUCCESS":
-            print_panel("❌ Gagal", res.get("message", "Transaksi gagal."))
-        elif "err" in res.get("message", "").lower():
-            print_panel("❌ Gagal", f"Status SUCCESS tapi ada pesan error:\n{res['message']}")
-        else:
-            print_panel("✅ Sukses", "Pembelian berhasil.")
-
+        success, message = validate_transaction_response(res)
+        print_panel("✅ Sukses" if success else "❌ Gagal", message)
         console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
         return
-

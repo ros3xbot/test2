@@ -232,14 +232,13 @@ def show_hot_menu2():
             table.add_row(str(idx + 1), p["name"], get_rupiah(p["price"]))
 
         console.print(Panel(table, border_style=theme["border_primary"], padding=(0, 0), expand=True))
-        
+
         nav_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
         nav_table.add_column(justify="right", style=theme["text_key"], width=4)
         nav_table.add_column(style=theme["text_body"])
         nav_table.add_row("00", f"[{theme['text_sub']}]Kembali ke menu utama[/]")
 
         console.print(Panel(nav_table, border_style=theme["border_info"], padding=(0, 1), expand=True))
-
 
         choice = console.input(f"[{theme['text_sub']}]Pilih paket:[/{theme['text_sub']}] ").strip()
         if choice == "00":
@@ -269,6 +268,7 @@ def show_hot_menu2():
             )
             if not detail:
                 print_panel("⚠️ Error", f"Gagal mengambil detail paket untuk {package['family_code']}.")
+                pause()
                 return
 
             payment_items.append(PaymentItem(
@@ -280,16 +280,16 @@ def show_hot_menu2():
                 token_confirmation=detail["token_confirmation"],
             ))
 
-        clear_screen()
+        detail_lines = [
+            f"[{theme['text_body']}]• {line.strip()}[/{theme['text_body']}]"
+            for line in selected_package.get("detail", "").split("\n")
+            if line.strip()
+        ]
+
         console.print(Panel(
             f"[bold]{selected_package['name']}[/]\n\n"
             f"Harga: Rp [bold {theme['text_money']}]{get_rupiah(selected_package['price'])}[/]\n\n"
-            f"[{theme['text_sub']}]Detail:[/]\n" +
-            "\n".join([
-                f"[{theme['text_body']}]• {line.strip()}[/{theme['text_body']}]"
-                for line in selected_package.get("detail", "").split("\n")
-                if line.strip()
-            ]),
+            f"[{theme['text_sub']}]Detail:[/]\n" + "\n".join(detail_lines),
             title=f"[{theme['text_title']}]📦 Detail Paket[/]",
             border_style=theme["border_info"],
             padding=(1, 2),
@@ -302,58 +302,63 @@ def show_hot_menu2():
         token_confirmation_idx = selected_package.get("token_confirmation_idx", 0)
         amount_idx = selected_package.get("amount_idx", -1)
 
-        while True:
-            method_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
-            method_table.add_column(justify="right", style=theme["text_key"], width=6)
-            method_table.add_column(style=theme["text_body"])
-            method_table.add_row("1", "💰 Balance")
-            method_table.add_row("2", "📱 E-Wallet")
-            method_table.add_row("3", "🏧 QRIS")
-            method_table.add_row("00", f"[{theme['text_sub']}]Kembali ke daftar paket[/]")
+        method_table = Table(show_header=False, box=MINIMAL_DOUBLE_HEAD, expand=True)
+        method_table.add_column(justify="right", style=theme["text_key"], width=6)
+        method_table.add_column(style=theme["text_body"])
+        method_table.add_row("1", "💰 Balance")
+        method_table.add_row("2", "📱 E-Wallet")
+        method_table.add_row("3", "🏧 QRIS")
+        method_table.add_row("00", f"[{theme['text_sub']}]Kembali ke daftar paket[/]")
 
-            console.print(Panel(
-                method_table,
-                title=f"[{theme['text_title']}]💳 Pilih Metode Pembayaran[/]",
-                border_style=theme["border_primary"],
-                padding=(0, 1),
-                expand=True
-            ))
+        console.print(Panel(
+            method_table,
+            title=f"[{theme['text_title']}]💳 Pilih Metode Pembayaran[/]",
+            border_style=theme["border_primary"],
+            padding=(0, 1),
+            expand=True
+        ))
 
-            method = console.input(f"[{theme['text_sub']}]Pilih metode:[/{theme['text_sub']}] ").strip()
-            if method == "00":
-                break
-            elif method == "1":
-                if overwrite_amount == -1:
-                    harga_rp = get_rupiah(payment_items[-1]["item_price"])
-                    konfirmasi_text = Text()
-                    konfirmasi_text.append("⚠️ Pastikan sisa balance KURANG DARI\n", style=theme["text_err"])
-                    konfirmasi_text.append(f"Harga paket: Rp {harga_rp}\n", style=theme["text_money"])
+        method = console.input(f"[{theme['text_sub']}]Pilih metode:[/{theme['text_sub']}] ").strip()
+        if method == "00":
+            continue
 
-                    console.print(Panel(
-                        Align.center(konfirmasi_text),
-                        title=f"[{theme['text_title']}]Konfirmasi Pembelian[/]",
-                        border_style=theme["border_warning"],
-                        padding=(0, 1),
-                        expand=True
-                    ))
+        if method == "1":
+            if overwrite_amount == -1:
+                harga_rp = get_rupiah(payment_items[-1].item_price)
+                konfirmasi_text = Text()
+                konfirmasi_text.append("⚠️ Pastikan sisa balance KURANG DARI\n", style=theme["text_err"])
+                konfirmasi_text.append(f"Harga paket: Rp {harga_rp}\n", style=theme["text_money"])
 
-                    confirm = console.input(f"[{theme['text_sub']}]Apakah anda yakin ingin melanjutkan pembelian? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                    if confirm != "y":
-                        print_panel("Info", "Pembelian dibatalkan oleh pengguna.")
-                        pause()
-                        break
+                console.print(Panel(
+                    Align.center(konfirmasi_text),
+                    title=f"[{theme['text_title']}]Konfirmasi Pembelian[/]",
+                    border_style=theme["border_warning"],
+                    padding=(0, 1),
+                    expand=True
+                ))
 
-                settlement_balance(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
-                console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
-                return
-            elif method == "2":
-                show_multipayment(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
-                console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
-                return
-            elif method == "3":
-                show_qris_payment(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
-                console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
-                return
-            else:
-                print_panel("⚠️ Error", "Metode tidak valid. Silahkan coba lagi.")
-                pause()
+                confirm = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                if confirm != "y":
+                    print_panel("Info", "Pembelian dibatalkan oleh pengguna.")
+                    pause()
+                    continue
+
+            res = settlement_balance(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
+        elif method == "2":
+            res = show_multipayment(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
+        elif method == "3":
+            res = show_qris_payment(api_key, tokens, payment_items, payment_for, ask_overwrite, overwrite_amount, token_confirmation_idx, amount_idx)
+        else:
+            print_panel("⚠️ Error", "Metode tidak valid. Silahkan coba lagi.")
+            pause()
+            continue
+
+        if not res or res.get("status") != "SUCCESS":
+            print_panel("❌ Gagal", res.get("message", "Transaksi gagal."))
+        elif "err" in res.get("message", "").lower():
+            print_panel("❌ Gagal", f"Status SUCCESS tapi ada pesan error:\n{res['message']}")
+        else:
+            print_panel("✅ Sukses", "Pembelian berhasil.")
+
+        console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
+        return

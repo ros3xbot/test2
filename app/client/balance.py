@@ -55,8 +55,7 @@ def settlement_balance(
     if payment_res["status"] != "SUCCESS":
         print("Failed to fetch payment methods.")
         print(f"Error: {payment_res}")
-        return payment_res  # Tetap dikembalikan agar bisa divalidasi
-
+        return payment_res
     token_payment = payment_res["data"]["token_payment"]
     ts_to_sign = payment_res["data"]["timestamp"]
 

@@ -364,3 +364,4 @@ def show_hot_menu2():
 
         console.input(f"[{theme['text_sub']}]Tekan enter untuk kembali...[/{theme['text_sub']}] ")
         return
+

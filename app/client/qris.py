@@ -251,4 +251,4 @@ def show_qris_payment(
 
     print(f"Atau buka link berikut untuk melihat QRIS:\n{qris_url}")
 
-    return
+    return res

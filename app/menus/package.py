@@ -54,12 +54,15 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
     ]
 
     render_package_preview(package, option_order)
-    return handle_package_interaction(
+    result = handle_package_interaction(
         api_key, tokens, package, payment_items,
         is_enterprise, option_order,
         price, payment_for, token_confirmation, ts_to_sign
     )
 
+    if result == "MAIN":
+        return "MAIN"
+    return result
 
 def render_package_preview(package, option_order):
     theme = get_theme()
@@ -145,6 +148,7 @@ def render_package_preview(package, option_order):
     if option_order != -1:
         option_table.add_row("0", "🔖 Tambah ke Bookmark")
     option_table.add_row("00", f"[{theme['text_sub']}]Kembali ke daftar paket[/]")
+    option_table.add_row("99", f"[{theme['text_err']}]Kembali ke menu utama[/]")
 
     console.print(Panel(option_table, title="🛒 Opsi Pembelian", border_style=theme["border_info"], expand=True))
 
@@ -162,6 +166,8 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
 
         if choice == "00":
             return False
+        elif choice == "99":
+            return "MAIN"
         elif choice == "0" and option_order != -1:
             success = BookmarkInstance.add_bookmark(
                 family_code=family_code,

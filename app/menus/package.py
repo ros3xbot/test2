@@ -140,8 +140,8 @@ def render_package_preview(package, option_order):
     option_table.add_row("3", "📱 QRIS")
     option_table.add_row("4", "💰 Pulsa + Decoy XCP")
     option_table.add_row("5", "💰 Pulsa + Decoy XCP V2")
-    option_table.add_row("6", "🔁 Pulsa N kali")
-    option_table.add_row("7", "📱 QRIS + Decoy Edu")
+    option_table.add_row("6", "📱 QRIS + Decoy Edu")
+    option_table.add_row("7", "🔁 Pulsa N kali")
     if payment_for == "REDEEM_VOUCHER":
         option_table.add_row("B", "🎁 Ambil sebagai bonus")
         option_table.add_row("L", "⭐ Beli dengan Poin")

@@ -287,6 +287,7 @@ def show_hot_menu2():
             if line.strip()
         ]
 
+        clear_screen()
         console.print(Panel(
             f"[bold]{selected_package['name']}[/]\n\n"
             f"Harga: Rp [bold {theme['text_money']}]{get_rupiah(selected_package['price'])}[/]\n\n"

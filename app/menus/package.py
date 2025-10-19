@@ -29,31 +29,18 @@ console = Console()
 
 def show_package_details(api_key, tokens, package_option_code, is_enterprise, option_order=-1):
     clear_screen()
-    theme = get_theme()
-
     package = get_package(api_key, tokens, package_option_code)
     if not package:
-        print_panel("⚠️ Error", "Gagal memuat detail paket.", theme["border_error"])
+        print_panel("⚠️ Error", "Gagal memuat detail paket.")
         pause()
-        return "BACK"
+        return False
 
-    option = package.get("package_option", {})
-    family = package.get("package_family", {})
-    variant = package.get("package_detail_variant", {})
-    price = option.get("price", 0)
-    formatted_price = get_rupiah(price)
-    validity = option.get("validity", "-")
-    point = option.get("point", "-")
-    plan_type = family.get("plan_type", "-")
-    payment_for = family.get("payment_for", "") or "BUY_PACKAGE"
-    token_confirmation = package.get("token_confirmation", "")
-    ts_to_sign = package.get("timestamp", "")
-    detail = display_html(option.get("tnc", ""))
-
-    option_name = option.get("name", "")
-    family_name = family.get("name", "")
-    variant_name = variant.get("name", "")
-    title = f"{family_name} - {variant_name} - {option_name}".strip()
+    price = package["package_option"]["price"]
+    token_confirmation = package["token_confirmation"]
+    ts_to_sign = package["timestamp"]
+    payment_for = package["package_family"].get("payment_for", "") or "BUY_PACKAGE"
+    variant_name = package.get("package_detail_variant", {}).get("name", "")
+    option_name = package.get("package_option", {}).get("name", "")
 
     payment_items = [
         PaymentItem(
@@ -65,6 +52,32 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
             token_confirmation=token_confirmation,
         )
     ]
+
+    render_package_preview(package, option_order)
+    return handle_package_interaction(
+        api_key, tokens, package, payment_items,
+        is_enterprise, option_order,
+        price, payment_for, token_confirmation, ts_to_sign
+    )
+
+
+def render_package_preview(package, option_order):
+    theme = get_theme()
+    option = package.get("package_option", {})
+    family = package.get("package_family", {})
+    variant = package.get("package_detail_variant", {})
+    price = option.get("price", 0)
+    formatted_price = get_rupiah(price)
+    validity = option.get("validity", "-")
+    point = option.get("point", "-")
+    plan_type = family.get("plan_type", "-")
+    payment_for = family.get("payment_for", "") or "BUY_PACKAGE"
+    detail = display_html(option.get("tnc", ""))
+
+    option_name = option.get("name", "")
+    family_name = family.get("name", "")
+    variant_name = variant.get("name", "")
+    title = f"{family_name} - {variant_name} - {option_name}".strip()
 
     info_table = Table.grid(padding=(0, 1))
     info_table.add_column(justify="left", style=theme["text_body"])
@@ -132,21 +145,27 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
     if option_order != -1:
         option_table.add_row("0", "🔖 Tambah ke Bookmark")
     option_table.add_row("00", f"[{theme['text_sub']}]Kembali ke daftar paket[/]")
-    option_table.add_row("99", f"[{theme['text_err']}]Kembali ke menu utama[/]")
 
     console.print(Panel(option_table, title="🛒 Opsi Pembelian", border_style=theme["border_info"], expand=True))
+
+
+def handle_package_interaction(api_key, tokens, package, payment_items, is_enterprise, option_order, price, payment_for, token_confirmation, ts_to_sign):
+    theme = get_theme()
+    variant_name = package.get("package_detail_variant", {}).get("name", "")
+    option_name = package.get("package_option", {}).get("name", "")
+    family = package.get("package_family", {})
+    family_code = family.get("package_family_code", "")
+    variant_code = package.get("package_detail_variant", {}).get("package_variant_code", "")
 
     while True:
         choice = console.input(f"[{theme['text_sub']}]Pilihan:[/{theme['text_sub']}] ").strip().lower()
 
         if choice == "00":
-            return "BACK"
-        elif choice == "99":
-            return "MAIN"
+            return False
         elif choice == "0" and option_order != -1:
             success = BookmarkInstance.add_bookmark(
-                family_code=family.get("package_family_code", ""),
-                family_name=family_name,
+                family_code=family_code,
+                family_name=family.get("name", ""),
                 is_enterprise=is_enterprise,
                 variant_name=variant_name,
                 option_name=option_name,
@@ -262,8 +281,8 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
             purchase_n_times(
                 n,
-                family_code=family.get("package_family_code", ""),
-                variant_code=variant.get("package_variant_code", ""),
+                family_code=family_code,
+                variant_code=variant_code,
                 option_order=option_order,
                 use_decoy=use_decoy,
                 delay_seconds=d,
@@ -278,7 +297,7 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 tokens=tokens,
                 token_confirmation=token_confirmation,
                 ts_to_sign=ts_to_sign,
-                payment_target=package_option_code,
+                payment_target=payment_items[0].item_code,
                 price=price,
                 item_name=variant_name
             )
@@ -292,7 +311,7 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 tokens=tokens,
                 token_confirmation=token_confirmation,
                 ts_to_sign=ts_to_sign,
-                payment_target=package_option_code,
+                payment_target=payment_items[0].item_code,
                 price=price,
             )
             print_panel("✅ Info", "Silahkan cek hasil pembelian poin di aplikasi MyXL.", theme["border_success"])

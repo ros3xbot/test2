@@ -42,9 +42,12 @@ def clear_screen():
 
     print_banner()
 
-def print_panel(title, content):
+def print_panel(title, content, border_style=None):
     theme = get_theme()
-    console.print(Panel(content, title=title, title_align="left", style=theme["border_info"]))
+    console = Console()
+    style = border_style or theme["border_info"]
+    console.print(Panel(content, title=title, title_align="left", border_style=style))
+
 
 def print_menu(title, options):
     theme = get_theme()

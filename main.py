@@ -78,7 +78,6 @@ def ensure_git():
         console.print(Panel(text, title="Validasi Git", border_style="yellow"))
         sys.exit(1)
 
-
 def fetch_user_context(force_refresh=False):
     global cached_user_context, last_fetch_time
     now = time.time()

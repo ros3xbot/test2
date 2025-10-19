@@ -152,13 +152,11 @@ def render_package_preview(package, option_order):
 
     console.print(Panel(option_table, title="🛒 Opsi Pembelian", border_style=theme["border_info"], expand=True))
 
-
 def handle_package_interaction(api_key, tokens, package, payment_items, is_enterprise, option_order, price, payment_for, token_confirmation, ts_to_sign):
     theme = get_theme()
     variant_name = package.get("package_detail_variant", {}).get("name", "")
     option_name = package.get("package_option", {}).get("name", "")
-    family = package.get("package_family", {})
-    family_code = family.get("package_family_code", "")
+    family_code = package.get("package_family", {}).get("package_family_code", "")
     variant_code = package.get("package_detail_variant", {}).get("package_variant_code", "")
 
     while True:
@@ -166,22 +164,25 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
 
         if choice == "00":
             return False
-        elif choice == "99":
+        if choice == "99":
+            print_panel("🔙 Navigasi", "Kembali ke menu utama...", theme["border_info"])
             return "MAIN"
-        elif choice == "0" and option_order != -1:
+
+        if choice == "0" and option_order != -1:
             success = BookmarkInstance.add_bookmark(
                 family_code=family_code,
-                family_name=family.get("name", ""),
+                family_name=package.get("package_family", {}).get("name", ""),
                 is_enterprise=is_enterprise,
                 variant_name=variant_name,
                 option_name=option_name,
                 order=option_order,
             )
             msg = "Paket berhasil ditambahkan ke bookmark." if success else "Paket sudah ada di bookmark."
-            print_panel("✅ Info", msg, theme["border_success"])
+            print_panel("🔖 Bookmark", msg, theme["border_success"])
             pause()
+            continue
 
-        elif choice == "1":
+        if choice == "1":
             settlement_balance(api_key, tokens, payment_items, payment_for, True)
             print_panel("✅ Info", "Silahkan cek hasil pembelian di aplikasi MyXL.", theme["border_success"])
             pause()
@@ -210,7 +211,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
             if not response.ok:
                 print_panel("❌ Error", "Gagal mengambil data decoy package.", theme["border_error"])
                 pause()
-                return None
+                return False
 
             decoy_data = response.json()
             decoy_detail = get_package_details(
@@ -237,38 +238,31 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
             token_idx = 1 if choice in ["5", "6"] else -1
             pf = "SHARE_PACKAGE" if choice == "6" else payment_for
 
-            res = settlement_balance(
-                api_key, tokens,
-                payment_items,
-                pf,
-                False,
-                total_amount,
-                token_confirmation_idx=token_idx
-            )
-
-            if res and res.get("status") != "SUCCESS":
-                msg = res.get("message", "")
-                if "Bizz-err.Amount.Total" in msg:
-                    try:
-                        valid_amount = int(msg.split("=")[1].strip())
-                        print_panel("⚠️ Penyesuaian", f"Total disesuaikan ke Rp {valid_amount}", theme["border_warning"])
-                        res = settlement_balance(
-                            api_key, tokens,
-                            payment_items,
-                            "BUY_PACKAGE",
-                            False,
-                            valid_amount,
-                            token_confirmation_idx=-1
-                        )
-                    except:
-                        print_panel("❌ Error", "Gagal parsing fallback amount.", theme["border_error"])
-
-            if res and res.get("status") == "SUCCESS":
-                print_panel("✅ Sukses", "Pembelian berhasil dilakukan!", theme["border_success"])
+            if choice == "6":
+                console.print(Panel(
+                    f"Harga Paket Utama: Rp {price}\nHarga Paket Decoy: Rp {decoy_detail['package_option']['price']}\nSilahkan sesuaikan amount (trial & error)",
+                    title="📊 Info QRIS Decoy", border_style=theme["border_info"]
+                ))
+                show_qris_payment(api_key, tokens, payment_items, pf, True, token_confirmation_idx=token_idx)
+                pause()
+                return True
             else:
-                print_panel("❌ Gagal", res.get("message", "Transaksi gagal."), theme["border_error"])
-            pause()
-            return True
+                res = settlement_balance(api_key, tokens, payment_items, pf, False, total_amount, token_confirmation_idx=token_idx)
+                if res and res.get("status", "") != "SUCCESS":
+                    msg = res.get("message", "")
+                    if "Bizz-err.Amount.Total" in msg:
+                        try:
+                            valid_amount = int(msg.split("=")[1].strip())
+                            print_panel("⚠️ Penyesuaian", f"Total disesuaikan ke Rp {valid_amount}", theme["border_warning"])
+                            res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
+                        except:
+                            print_panel("❌ Error", "Gagal parsing fallback amount.", theme["border_error"])
+                if res and res.get("status", "") == "SUCCESS":
+                    print_panel("✅ Sukses", "Pembelian berhasil dilakukan!", theme["border_success"])
+                else:
+                    print_panel("❌ Gagal", res.get("message", "Transaksi gagal."), theme["border_error"])
+                pause()
+                return True
 
         elif choice == "7":
             use_decoy = console.input("Gunakan decoy package? (y/n): ").strip().lower() == "y"
@@ -326,7 +320,6 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
 
         else:
             print_panel("❌ Error", "Pilihan tidak dikenali.", theme["border_error"])
-
 
 def get_packages_by_family(
     family_code: str,

@@ -8,6 +8,7 @@ from app.service.bookmark import BookmarkInstance
 from app.client.purchase import settlement_bounty, settlement_loyalty
 from app.menus.util import clear_screen, pause, display_html
 from app.menus.util_helper import print_panel, get_rupiah, live_loading
+from app.menus.purchase import purchase_n_times
 from app.client.qris import show_qris_payment
 from app.client.ewallet import show_multipayment
 from app.client.balance import settlement_balance
@@ -32,7 +33,7 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
     package = get_package(api_key, tokens, package_option_code)
     if not package:
-        print_panel("⚠️ Error", "Gagal memuat detail paket.")
+        print_panel("⚠️ Error", "Gagal memuat detail paket.", theme["border_error"])
         pause()
         return "BACK"
 
@@ -137,6 +138,7 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
 
     while True:
         choice = console.input(f"[{theme['text_sub']}]Pilihan:[/{theme['text_sub']}] ").strip().lower()
+
         if choice == "00":
             return "BACK"
         elif choice == "99":
@@ -151,134 +153,126 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 order=option_order,
             )
             msg = "Paket berhasil ditambahkan ke bookmark." if success else "Paket sudah ada di bookmark."
-            print_panel("✅ Info", msg)
+            print_panel("✅ Info", msg, theme["border_success"])
             pause()
+
         elif choice == "1":
             settlement_balance(api_key, tokens, payment_items, payment_for, True)
-            console.input(f"[{theme['text_sub']}]✅ Pembelian selesai. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
+            print_panel("✅ Info", "Silahkan cek hasil pembelian di aplikasi MyXL.", theme["border_success"])
+            pause()
             return True
+
         elif choice == "2":
             show_multipayment(api_key, tokens, payment_items, payment_for, True)
-            console.input(f"[{theme['text_sub']}]✅ Silahkan lakukan pembayaran. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
+            print_panel("✅ Info", "Silahkan lakukan pembayaran & cek hasil pembelian di aplikasi MyXL.", theme["border_success"])
+            pause()
             return True
+
         elif choice == "3":
             show_qris_payment(api_key, tokens, payment_items, payment_for, True)
-            console.input(f"[{theme['text_sub']}]✅ Silahkan lakukan pembayaran. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
+            print_panel("✅ Info", "Silahkan lakukan pembayaran & cek hasil pembelian di aplikasi MyXL.", theme["border_success"])
+            pause()
             return True
-        elif choice == "4" or choice == "5":
-            try:
-                url = "https://me.mashu.lol/pg-decoy-xcp.json"
-                response = requests.get(url, timeout=30)
-                decoy_data = response.json()
-                decoy_detail = get_package_details(
-                    api_key, tokens,
-                    decoy_data["family_code"],
-                    decoy_data["variant_code"],
-                    decoy_data["order"],
-                    decoy_data["is_enterprise"],
-                    decoy_data["migration_type"]
-                )
-                payment_items.append(PaymentItem(
+
+        elif choice in ["4", "5", "6"]:
+            decoy_url = {
+                "4": "https://me.mashu.lol/pg-decoy-xcp.json",
+                "5": "https://me.mashu.lol/pg-decoy-xcp.json",
+                "6": "https://me.mashu.lol/pg-decoy-edu.json"
+            }[choice]
+
+            response = requests.get(decoy_url, timeout=30)
+            if not response.ok:
+                print_panel("❌ Error", "Gagal mengambil data decoy package.", theme["border_error"])
+                pause()
+                return None
+
+            decoy_data = response.json()
+            decoy_detail = get_package_details(
+                api_key, tokens,
+                decoy_data["family_code"],
+                decoy_data["variant_code"],
+                decoy_data["order"],
+                decoy_data["is_enterprise"],
+                decoy_data["migration_type"],
+            )
+
+            payment_items.append(
+                PaymentItem(
                     item_code=decoy_detail["package_option"]["package_option_code"],
                     product_type="",
                     item_price=decoy_detail["package_option"]["price"],
                     item_name=decoy_detail["package_option"]["name"],
                     tax=0,
                     token_confirmation=decoy_detail["token_confirmation"],
-                ))
-                overwrite_amount = price + decoy_detail["package_option"]["price"]
-                res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, overwrite_amount, token_confirmation_idx=-1)
+                )
+            )
 
-                if not res or res.get("status") != "SUCCESS":
-                    error_msg = res.get("message", "")
-                    if "Bizz-err.Amount.Total" in error_msg:
-                        error_msg_arr = error_msg.split("=")
-                        valid_amount = int(error_msg_arr[1].strip())
-                        print_panel("Info", f"Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}")
-                        res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
-                        if res and res.get("status") == "SUCCESS":
-                            print_panel("✅ Info", "Pembelian berhasil dengan jumlah yang disesuaikan.")
-                        else:
-                            print_panel("⚠️ Gagal", f"Pembelian gagal setelah penyesuaian jumlah.\n{res.get('message', '')}")
-                    else:
-                        print_panel("⚠️ Gagal", f"Pembelian gagal.\n{error_msg}")
-                else:
-                    error_msg = res.get("message", "")
-                    if error_msg and "err" in error_msg.lower():
-                        print_panel("⚠️ Gagal", f"Status SUCCESS tapi ada pesan error:\n{error_msg}")
-                    else:
-                        print_panel("✅ Info", "Pembelian berhasil.")
+            total_amount = price + decoy_detail["package_option"]["price"]
+            token_idx = 1 if choice in ["5", "6"] else -1
+            pf = "SHARE_PACKAGE" if choice == "6" else payment_for
 
-            except Exception as e:
-                print_panel("⚠️ Error", f"Gagal melakukan pembelian decoy: {e}")
-                pause()
-                #return False
-                return "BACK"
+            res = settlement_balance(
+                api_key, tokens,
+                payment_items,
+                pf,
+                False,
+                total_amount,
+                token_confirmation_idx=token_idx
+            )
 
-        elif choice == "6":
-            use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
-            n_times_str = console.input(f"[{theme['text_sub']}]Berapa kali pembelian? (misal: 3):[/{theme['text_sub']}] ").strip()
-            delay_str = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
-            if not delay_str.isdigit():
-                delay_str = "0"
+            if res and res.get("status") != "SUCCESS":
+                msg = res.get("message", "")
+                if "Bizz-err.Amount.Total" in msg:
+                    try:
+                        valid_amount = int(msg.split("=")[1].strip())
+                        print_panel("⚠️ Penyesuaian", f"Total disesuaikan ke Rp {valid_amount}", theme["border_warning"])
+                        res = settlement_balance(
+                            api_key, tokens,
+                            payment_items,
+                            "BUY_PACKAGE",
+                            False,
+                            valid_amount,
+                            token_confirmation_idx=-1
+                        )
+                    except:
+                        print_panel("❌ Error", "Gagal parsing fallback amount.", theme["border_error"])
+
+            if res and res.get("status") == "SUCCESS":
+                print_panel("✅ Sukses", "Pembelian berhasil dilakukan!", theme["border_success"])
+            else:
+                print_panel("❌ Gagal", res.get("message", "Transaksi gagal."), theme["border_error"])
+            pause()
+            return True
+
+        elif choice == "7":
+            use_decoy = console.input("Gunakan decoy package? (y/n): ").strip().lower() == "y"
+            n_times = console.input("Jumlah pembelian (misal: 3): ").strip()
+            delay = console.input("Delay antar pembelian (detik): ").strip()
+
             try:
-                n_times = int(n_times_str)
-                if n_times < 1:
-                    raise ValueError("Minimal 1 kali pembelian.")
-            except ValueError:
-                print_panel("⚠️ Error", "Input jumlah tidak valid.")
+                n = int(n_times)
+                d = int(delay)
+                if n < 1:
+                    raise ValueError
+            except:
+                print_panel("❌ Error", "Input tidak valid.", theme["border_error"])
                 pause()
                 continue
-            from app.client.repeat import purchase_n_times
+
             purchase_n_times(
-                n_times,
+                n,
                 family_code=family.get("package_family_code", ""),
                 variant_code=variant.get("package_variant_code", ""),
                 option_order=option_order,
                 use_decoy=use_decoy,
-                delay_seconds=int(delay_str),
+                delay_seconds=d,
                 pause_on_success=False,
             )
+            pause()
             return True
 
-        elif choice == "7":
-            try:
-                response = requests.get("https://me.mashu.lol/pg-decoy-edu.json", timeout=30)
-                response.raise_for_status()
-                decoy_data = response.json()
-                decoy_detail = get_package_details(
-                    api_key, tokens,
-                    decoy_data["family_code"],
-                    decoy_data["variant_code"],
-                    decoy_data["order"],
-                    decoy_data["is_enterprise"],
-                    decoy_data["migration_type"]
-                )
-                payment_items.append(PaymentItem(
-                    item_code=decoy_detail["package_option"]["package_option_code"],
-                    product_type="",
-                    item_price=decoy_detail["package_option"]["price"],
-                    item_name=decoy_detail["package_option"]["name"],
-                    tax=0,
-                    token_confirmation=decoy_detail["token_confirmation"],
-                ))
-
-                info_text = Text()
-                info_text.append(f"Harga Paket Utama: Rp {get_rupiah(price)}\n", style=theme["text_money"])
-                info_text.append(f"Harga Paket Decoy: Rp {get_rupiah(decoy_detail['package_option']['price'])}\n", style=theme["text_money"])
-                info_text.append("Silahkan sesuaikan amount jika diperlukan (trial & error)", style=theme["text_body"])
-
-                console.print(Panel(info_text, title="📦 Info Pembayaran QRIS + Decoy", border_style=theme["border_warning"], expand=True))
-
-                show_qris_payment(api_key, tokens, payment_items, "SHARE_PACKAGE", True, token_confirmation_idx=1)
-                console.input(f"[{theme['text_sub']}]✅ QRIS selesai. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
-                return True
-            except Exception as e:
-                print_panel("⚠️ Error", f"Gagal mengambil decoy Edu: {e}")
-                pause()
-                return False
-
-        elif choice == "b" and payment_for == "REDEEM_VOUCHER":
+        elif choice == "b":
             settlement_bounty(
                 api_key=api_key,
                 tokens=tokens,
@@ -288,10 +282,11 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 price=price,
                 item_name=variant_name
             )
-            console.input(f"[{theme['text_sub']}]✅ Bonus berhasil diambil. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
+            print_panel("✅ Info", "Silahkan cek hasil pengambilan bonus di aplikasi MyXL.", theme["border_success"])
+            pause()
             return True
 
-        elif choice == "l" and payment_for == "REDEEM_VOUCHER":
+        elif choice == "l":
             settlement_loyalty(
                 api_key=api_key,
                 tokens=tokens,
@@ -300,12 +295,12 @@ def show_package_details(api_key, tokens, package_option_code, is_enterprise, op
                 payment_target=package_option_code,
                 price=price,
             )
-            console.input(f"[{theme['text_sub']}]✅ Pembelian dengan poin selesai. Tekan Enter untuk kembali...[/{theme['text_sub']}] ")
+            print_panel("✅ Info", "Silahkan cek hasil pembelian poin di aplikasi MyXL.", theme["border_success"])
+            pause()
             return True
 
         else:
-            print_panel("⚠️ Error", "Pilihan tidak valid atau tidak tersedia.")
-            pause()
+            print_panel("❌ Error", "Pilihan tidak dikenali.", theme["border_error"])
 
 
 def get_packages_by_family(

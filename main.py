@@ -144,8 +144,8 @@ def fetch_user_context(force_refresh=False):
 
 
 def show_main_menu(profile, display_quota, segments):
-    ensure_git()
     clear_screen()
+    ensure_git()
     theme = get_theme()
     expired_at_dt = datetime.fromtimestamp(profile["balance_expired_at"]).strftime("%Y-%m-%d %H:%M:%S")
     pulsa_str = get_rupiah(profile["balance"])

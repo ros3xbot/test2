@@ -3,6 +3,37 @@ from app.client.engsel import send_api_request
 from app.menus.util_helper import live_loading
 from app.config.theme_config import get_theme
 
+def unsubscribe(
+    api_key: str,
+    tokens: dict,
+    quota_code: str,
+    product_domain: str,
+    product_subscription_type: str,
+) -> bool:
+    path = "api/v8/packages/unsubscribe"
+
+    raw_payload = {
+        "product_subscription_type": product_subscription_type,
+        "quota_code": quota_code,
+        "product_domain": product_domain,
+        "is_enterprise": False,
+        "unsubscribe_reason_code": "",
+        "lang": "en",
+        "family_member_id": ""
+    }
+    
+    # print(f"Payload: {json.dumps(raw_payload, indent=4)}")
+
+    try:
+        res = send_api_request(api_key, path, raw_payload, tokens["id_token"], "POST")
+        print(json.dumps(res, indent=4))
+
+        if res and res.get("code") == "000":
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
 
 def get_pending_transaction(api_key: str, tokens: dict) -> dict:
     path = "api/v8/profile"

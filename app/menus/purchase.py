@@ -413,7 +413,6 @@ def purchase_loop(
         option_price = target_option["price"]
         variant_code = target_variant["package_variant_code"]
 
-        # Ambil detail paket utama
         try:
             target_package_detail = get_package_details(
                 api_key, tokens,
@@ -438,7 +437,6 @@ def purchase_loop(
             }
         ]
 
-        # Tambahkan decoy jika diminta
         if use_decoy and decoy_url:
             try:
                 response = requests.get(decoy_url, timeout=30)
@@ -469,7 +467,6 @@ def purchase_loop(
                 pause()
                 return False
 
-        # Hitung total harga
         overwrite_amount = sum(item["item_price"] for item in payment_items)
         token_idx = 1 if use_decoy and decoy_type in ["xcp2", "edu"] else -1
         payment_for = "SHARE_PACKAGE" if decoy_type == "edu" else "BUY_PACKAGE"
@@ -524,7 +521,6 @@ def purchase_loop(
             console.print(f"[dim]Menunggu {delay} detik sebelum pembelian berikutnya...[/]")
             time.sleep(delay)
 
-    # Ringkasan
     summary_text = Text()
     summary_text.append(f"Total pembelian sukses: {len(successful_purchases)}/{loop}\n", style=theme["text_body"])
     summary_text.append(f"Family: {family_name}\n", style=theme["text_body"])

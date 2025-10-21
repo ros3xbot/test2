@@ -327,61 +327,41 @@ def main():
                     padding=(1, 2),
                     expand=True
                 ))
-            
+
                 family_code = console.input(f"[{theme['text_sub']}]Masukkan Family Code:[/{theme['text_sub']}] ").strip()
                 if not family_code or family_code == "99":
                     print_panel("Info", "Pembelian dibatalkan.")
                     pause()
                     continue
-            
-                use_decoy = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
-                decoy_type = "xcp"
-                if use_decoy:
-                    console.print(Panel(
-                        "[bold]Pilih tipe decoy yang ingin digunakan:[/]\n\n"
-                        "[cyan]1.[/] Decoy XCP (default)\n"
-                        "[cyan]2.[/] Decoy XCP V2 (token confirmation dari decoy)\n"
-                        "[cyan]3.[/] Decoy EDU (QRIS share package)\n",
-                        title="🎭 Pilihan Decoy",
-                        border_style=theme.get("border_info", "cyan"),
-                        padding=(1, 2),
-                        expand=True
-                    ))
-                    decoy_choice = console.input(f"[{theme['text_sub']}]Masukkan pilihan (1/2/3):[/{theme['text_sub']}] ").strip()
-                    if decoy_choice == "2":
-                        decoy_type = "xcp2"
-                    elif decoy_choice == "3":
-                        decoy_type = "edu"
-            
+
+                use_decoy_input = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                use_decoy = use_decoy_input == "y"
+
+                order_input = console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip()
+                delay_input = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
+                how_many_input = console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip()
+
                 try:
-                    order = int(console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip())
-                    delay = int(console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip() or "0")
-                    how_many = int(console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip())
-            
+                    order = int(order_input)
+                    delay = int(delay_input) if delay_input else 0
+                    how_many = int(how_many_input)
+
                     confirm_text = Text.from_markup(
                         f"Family Code: [bold]{family_code}[/]\n"
                         f"Urutan: [bold]{order}[/]\n"
                         f"Jumlah Ulang: [bold]{how_many}[/]\n"
                         f"Delay: [bold]{delay} detik[/]\n"
-                        f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}\n"
-                        f"Tipe Decoy: [bold]{decoy_type.upper()}[/]"
+                        f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}"
                     )
+
                     console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
-                    if console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower() != "y":
+                    lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower()
+                    if lanjut != "y":
                         print_panel("Info", "Pembelian dibatalkan.")
                         pause()
-                        continue
-            
-                    purchase_loop(
-                        loop=how_many,
-                        family_code=family_code,
-                        order=order,
-                        use_decoy=use_decoy,
-                        delay=delay,
-                        pause_on_success=True,
-                        decoy_type=decoy_type
-                    )
-            
+
+                    purchase_loop(how_many, family_code, order, use_decoy, delay)
+
                 except ValueError:
                     print_panel("⚠️ Error", "Input angka tidak valid.")
                     pause()

@@ -34,7 +34,7 @@ def prompt_decoy_type():
         return "edu"
     return "xcp"
 
-def main2():
+def loop():
     clear_screen()
     console.print(Panel(
         Align.center("🔁 Looping Pembelian dengan Decoy", vertical="middle"),
@@ -87,7 +87,7 @@ def main2():
 
 if __name__ == "__main__":
     try:
-        main2()
+        loop()
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")
         sys.exit(0)

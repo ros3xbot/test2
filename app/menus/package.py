@@ -152,6 +152,101 @@ def render_package_preview(package, option_order):
 
     console.print(Panel(option_table, title="🛒 Opsi Pembelian", border_style=theme["border_info"], expand=True))
 
+def handle_decoy_payment(api_key, tokens, payment_items, price, payment_for, decoy_url, method="balance", token_idx=-1):
+    theme = get_theme()
+
+    try:
+        response = requests.get(decoy_url, timeout=30)
+        response.raise_for_status()
+        decoy_data = response.json()
+    except Exception:
+        print_panel("❌ Error", "Gagal mengambil data decoy package.", theme.get("border_error", "red"))
+        pause()
+        return False
+
+    decoy_detail = get_package_details(
+        api_key,
+        tokens,
+        decoy_data["family_code"],
+        decoy_data["variant_code"],
+        decoy_data["order"],
+        decoy_data["is_enterprise"],
+        decoy_data["migration_type"],
+    )
+
+    payment_items.append(
+        PaymentItem(
+            item_code=decoy_detail["package_option"]["package_option_code"],
+            product_type="",
+            item_price=decoy_detail["package_option"]["price"],
+            item_name=decoy_detail["package_option"]["name"],
+            tax=0,
+            token_confirmation=decoy_detail["token_confirmation"],
+        )
+    )
+
+    total_amount = price + decoy_detail["package_option"]["price"]
+
+    if method == "qris":
+        console.print(Panel(
+            f"Harga Paket Utama: Rp {price}\n"
+            f"Harga Paket Decoy: Rp {decoy_detail['package_option']['price']}\n"
+            f"Silahkan sesuaikan amount (trial & error)",
+            title="📊 Info QRIS Decoy",
+            border_style=theme.get("border_info", "cyan"),
+            padding=(1, 2),
+            expand=True
+        ))
+
+        show_qris_payment(
+            api_key,
+            tokens,
+            payment_items,
+            payment_for,
+            True,
+            token_confirmation_idx=token_idx
+        )
+
+        input("Silahkan lakukan pembayaran & cek hasil pembelian di aplikasi MyXL. Tekan Enter untuk kembali.")
+        return True
+
+    else:
+        res = settlement_balance(
+            api_key,
+            tokens,
+            payment_items,
+            payment_for,
+            False,
+            total_amount,
+            token_confirmation_idx=token_idx
+        )
+
+        if res and res.get("status", "") != "SUCCESS":
+            msg = res.get("message", "")
+            if "Bizz-err.Amount.Total" in msg:
+                try:
+                    valid_amount = int(msg.split("=")[1].strip())
+                    print_panel("⚠️ Penyesuaian", f"Total disesuaikan ke Rp {valid_amount}", theme.get("border_warning", "yellow"))
+                    res = settlement_balance(
+                        api_key,
+                        tokens,
+                        payment_items,
+                        "BUY_PACKAGE",
+                        False,
+                        valid_amount,
+                        token_confirmation_idx=-1
+                    )
+                except Exception:
+                    print_panel("❌ Error", "Gagal parsing fallback amount.", theme.get("border_error", "red"))
+
+        if res and res.get("status", "") == "SUCCESS":
+            print_panel("✅ Sukses", "Pembelian berhasil dilakukan!", theme.get("border_success", "green"))
+        else:
+            print_panel("❌ Gagal", res.get("message", "Transaksi gagal."), theme.get("border_error", "red"))
+
+        pause()
+        return True
+
 def handle_package_interaction(api_key, tokens, package, payment_items, is_enterprise, option_order, price, payment_for, token_confirmation, ts_to_sign):
     theme = get_theme()
     variant_name = package.get("package_detail_variant", {}).get("name", "")
@@ -200,69 +295,32 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
             pause()
             return True
 
-        elif choice in ["4", "5", "6"]:
-            decoy_url = {
-                "4": "https://me.mashu.lol/pg-decoy-xcp.json",
-                "5": "https://me.mashu.lol/pg-decoy-xcp.json",
-                "6": "https://me.mashu.lol/pg-decoy-edu.json"
-            }[choice]
-
-            response = requests.get(decoy_url, timeout=30)
-            if not response.ok:
-                print_panel("❌ Error", "Gagal mengambil data decoy package.", theme["border_error"])
-                pause()
-                return False
-
-            decoy_data = response.json()
-            decoy_detail = get_package_details(
-                api_key, tokens,
-                decoy_data["family_code"],
-                decoy_data["variant_code"],
-                decoy_data["order"],
-                decoy_data["is_enterprise"],
-                decoy_data["migration_type"],
+        elif choice == "4":
+            return handle_decoy_payment(
+                api_key, tokens, payment_items, price,
+                payment_for,
+                decoy_url="https://me.mashu.lol/pg-decoy-xcp.json",
+                method="balance",
+                token_idx=-1
             )
-
-            payment_items.append(
-                PaymentItem(
-                    item_code=decoy_detail["package_option"]["package_option_code"],
-                    product_type="",
-                    item_price=decoy_detail["package_option"]["price"],
-                    item_name=decoy_detail["package_option"]["name"],
-                    tax=0,
-                    token_confirmation=decoy_detail["token_confirmation"],
-                )
+        
+        elif choice == "5":
+            return handle_decoy_payment(
+                api_key, tokens, payment_items, price,
+                payment_for="🤫",
+                decoy_url="https://me.mashu.lol/pg-decoy-xcp.json",
+                method="balance",
+                token_idx=1
             )
-
-            total_amount = price + decoy_detail["package_option"]["price"]
-            token_idx = 1 if choice in ["5", "6"] else -1
-            pf = "SHARE_PACKAGE" if choice == "6" else payment_for
-
-            if choice == "6":
-                console.print(Panel(
-                    f"Harga Paket Utama: Rp {price}\nHarga Paket Decoy: Rp {decoy_detail['package_option']['price']}\nSilahkan sesuaikan amount (trial & error)",
-                    title="📊 Info QRIS Decoy", border_style=theme["border_info"]
-                ))
-                show_qris_payment(api_key, tokens, payment_items, pf, True, token_confirmation_idx=token_idx)
-                pause()
-                return True
-            else:
-                res = settlement_balance(api_key, tokens, payment_items, pf, False, total_amount, token_confirmation_idx=token_idx)
-                if res and res.get("status", "") != "SUCCESS":
-                    msg = res.get("message", "")
-                    if "Bizz-err.Amount.Total" in msg:
-                        try:
-                            valid_amount = int(msg.split("=")[1].strip())
-                            print_panel("⚠️ Penyesuaian", f"Total disesuaikan ke Rp {valid_amount}", theme["border_warning"])
-                            res = settlement_balance(api_key, tokens, payment_items, "BUY_PACKAGE", False, valid_amount, token_confirmation_idx=-1)
-                        except:
-                            print_panel("❌ Error", "Gagal parsing fallback amount.", theme["border_error"])
-                if res and res.get("status", "") == "SUCCESS":
-                    print_panel("✅ Sukses", "Pembelian berhasil dilakukan!", theme["border_success"])
-                else:
-                    print_panel("❌ Gagal", res.get("message", "Transaksi gagal."), theme["border_error"])
-                pause()
-                return True
+        
+        elif choice == "6":
+            return handle_decoy_payment(
+                api_key, tokens, payment_items, price,
+                payment_for="SHARE_PACKAGE",
+                decoy_url="https://me.mashu.lol/pg-decoy-edu.json",
+                method="qris",
+                token_idx=1
+            )
 
         elif choice == "7":
             use_decoy = console.input("Gunakan decoy package? (y/n): ").strip().lower() == "y"

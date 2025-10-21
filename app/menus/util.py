@@ -109,3 +109,17 @@ def show_simple_number_panel():
         padding=(0, 0),
         expand=True
     ))
+
+def format_quota_byte(quota_byte: int) -> str:
+    GB = 1024 ** 3 
+    MB = 1024 ** 2
+    KB = 1024
+
+    if quota_byte >= GB:
+        return f"{quota_byte / GB:.2f} GB"
+    elif quota_byte >= MB:
+        return f"{quota_byte / MB:.2f} MB"
+    elif quota_byte >= KB:
+        return f"{quota_byte / KB:.2f} KB"
+    else:
+        return f"{quota_byte} B"

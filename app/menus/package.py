@@ -303,7 +303,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
                 method="balance",
                 token_idx=-1
             )
-        
+
         elif choice == "5":
             return handle_decoy_payment(
                 api_key, tokens, payment_items, price,
@@ -312,7 +312,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
                 method="balance",
                 token_idx=1
             )
-        
+
         elif choice == "6":
             return handle_decoy_payment(
                 api_key, tokens, payment_items, price,
@@ -323,9 +323,9 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
             )
 
         elif choice == "7":
-            use_decoy = console.input("Gunakan decoy package? (y/n): ").strip().lower() == "y"
-            n_times = console.input("Jumlah pembelian (misal: 3): ").strip()
-            delay = console.input("Delay antar pembelian (detik): ").strip()
+            use_decoy = console.input(f"[{theme['text_sub']}]Gunakan decoy package? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
+            n_times = console.input(f"[{theme['text_sub']}]Jumlah pembelian (misal: 3):[/{theme['text_sub']}] ").strip()
+            delay = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
 
             try:
                 n = int(n_times)
@@ -354,7 +354,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
                 tokens=tokens,
                 token_confirmation=token_confirmation,
                 ts_to_sign=ts_to_sign,
-                payment_target=payment_items[0].item_code,
+                payment_target=payment_items[0]["item_code"],
                 price=price,
                 item_name=variant_name
             )
@@ -368,7 +368,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
                 tokens=tokens,
                 token_confirmation=token_confirmation,
                 ts_to_sign=ts_to_sign,
-                payment_target=payment_items[0].item_code,
+                payment_target=payment_items[0]["item_code"],
                 price=price,
             )
             print_panel("✅ Info", "Silahkan cek hasil pembelian poin di aplikasi MyXL.", theme["border_success"])
@@ -377,6 +377,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
 
         else:
             print_panel("❌ Error", "Pilihan tidak dikenali.", theme["border_error"])
+
 
 def get_packages_by_family(
     family_code: str,

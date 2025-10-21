@@ -268,12 +268,7 @@ def main():
                 show_transaction_history(user_context["api_key"], user_context["tokens"])
 
             case "4":
-                tokens = AuthInstance.get_active_tokens()
-                if not tokens:
-                    print_panel("⚠️ Error", "Token tidak ditemukan. Silakan login terlebih dahulu.")
-                    pause()
-                else:
-                    run_point_exchange(tokens)
+                run_point_exchange(user_context["tokens"])
 
             case "5":
                 show_hot_menu()
@@ -307,11 +302,8 @@ def main():
                     pause()
                     continue
 
-                use_decoy_input = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                use_decoy = use_decoy_input == "y"
-
-                pause_input = console.input(f"[{theme['text_sub']}]Pause setiap pembelian sukses? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                pause_on_success = pause_input == "y"
+                use_decoy = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
+                pause_on_success = console.input(f"[{theme['text_sub']}]Pause setiap pembelian sukses? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
 
                 confirm_text = Text.from_markup(
                     f"Family Code: [bold]{family_code}[/]\n"
@@ -319,10 +311,8 @@ def main():
                     f"Pause per pembelian: {'Ya' if pause_on_success else 'Tidak'}\n\n"
                     f"[{theme['text_sub']}]Lanjutkan pembelian semua paket dalam family code ini?[/{theme['text_sub']}]"
                 )
-
                 console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
-                lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                if lanjut != "y":
+                if console.input(f"[{theme['text_sub']}]Lanjutkan? (y/n):[/{theme['text_sub']}] ").strip().lower() != "y":
                     print_panel("Info", "Pembelian dibatalkan.")
                     pause()
                     continue
@@ -344,17 +334,11 @@ def main():
                     pause()
                     continue
 
-                use_decoy_input = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                use_decoy = use_decoy_input == "y"
-
-                order_input = console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip()
-                delay_input = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
-                how_many_input = console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip()
-
+                use_decoy = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
                 try:
-                    order = int(order_input)
-                    delay = int(delay_input) if delay_input else 0
-                    how_many = int(how_many_input)
+                    order = int(console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip())
+                    delay = int(console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip() or "0")
+                    how_many = int(console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip())
 
                     confirm_text = Text.from_markup(
                         f"Family Code: [bold]{family_code}[/]\n"
@@ -363,12 +347,11 @@ def main():
                         f"Delay: [bold]{delay} detik[/]\n"
                         f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}"
                     )
-
                     console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
-                    lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                    if lanjut != "y":
+                    if console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower() != "y":
                         print_panel("Info", "Pembelian dibatalkan.")
                         pause()
+                        continue
 
                     purchase_loop(how_many, family_code, order, use_decoy, delay)
 
@@ -377,7 +360,7 @@ def main():
                     pause()
 
             case "12":
-                show_family_info(AuthInstance.api_key, active_user["tokens"])
+                show_family_info(user_context["api_key"], user_context["tokens"])
 
             case "00":
                 show_bookmark_menu()
@@ -413,5 +396,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print_panel("👋 Keluar", "Aplikasi dihentikan oleh pengguna.")
         sys.exit(0)
-
-

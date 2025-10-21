@@ -10,7 +10,7 @@ from app.menus.util import pause
 from app.menus.util_helper import print_panel, clear_screen
 from app.client.engsel import get_package_details, get_family
 from app.client.balance import settlement_balance
-from app.menus.payment_helper import PaymentItem
+from app.type_dict import PaymentItem
 from app.menus.purchase import purchase_loop
 
 console = Console()

@@ -352,27 +352,6 @@ def purchase_n_times(
     pause()
     return True
 
-def prompt_decoy_type():
-    theme = get_theme()
-    console.print(Panel(
-        "[bold]Pilih tipe decoy yang ingin digunakan:[/]\n\n"
-        "[cyan]1.[/] Decoy XCP (default)\n"
-        "[cyan]2.[/] Decoy XCP V2 (token confirmation dari decoy)\n"
-        "[cyan]3.[/] Decoy EDU (QRIS share package)\n",
-        title="🎭 Pilihan Decoy",
-        border_style=theme.get("border_info", "cyan"),
-        padding=(1, 2),
-        expand=True
-    ))
-
-    choice = console.input(f"[{theme['text_sub']}]Masukkan pilihan (1/2/3):[/{theme['text_sub']}] ").strip()
-    if choice == "2":
-        return "xcp2"
-    elif choice == "3":
-        return "edu"
-    else:
-        return "xcp"  # default
-
 def purchase_loop(
     loop: int,
     family_code: str,

@@ -470,7 +470,7 @@ def purchase_loop(
                 )
             )
 
-        overwrite_amount = sum(item.item_price for item in payment_items)
+        overwrite_amount = sum(item["item_price"] for item in payment_items)
         token_idx = 1 if decoy_type in ["xcp2", "edu"] else -1
         pf = "SHARE_PACKAGE" if decoy_type == "edu" else "BUY_PACKAGE"
 

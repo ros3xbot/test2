@@ -346,7 +346,6 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
                 delay_seconds=d,
                 pause_on_success=False,
             )
-            #pause()
             return True
 
         elif choice == "b":

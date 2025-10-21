@@ -413,7 +413,32 @@ def purchase_loop(
         option_price = target_option["price"]
         variant_code = target_variant["package_variant_code"]
 
-        decoy_package_detail = None
+        # Ambil detail paket utama
+        try:
+            target_package_detail = get_package_details(
+                api_key, tokens,
+                family_code,
+                variant_code,
+                order,
+                None,
+                None,
+            )
+        except Exception as e:
+            print_panel("⚠️ Error", f"Gagal mengambil detail paket: {e}")
+            return False
+
+        payment_items: list[PaymentItem] = [
+            {
+                "item_code": target_package_detail["package_option"]["package_option_code"],
+                "product_type": "",
+                "item_price": target_package_detail["package_option"]["price"],
+                "item_name": str(order) + target_package_detail["package_option"]["name"],
+                "tax": 0,
+                "token_confirmation": target_package_detail["token_confirmation"],
+            }
+        ]
+
+        # Tambahkan decoy jika diminta
         if use_decoy and decoy_url:
             try:
                 response = requests.get(decoy_url, timeout=30)
@@ -429,56 +454,31 @@ def purchase_loop(
                 )
                 balance_treshold = decoy_package_detail["package_option"]["price"]
                 print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
+
+                payment_items.append({
+                    "item_code": decoy_package_detail["package_option"]["package_option_code"],
+                    "product_type": "",
+                    "item_price": decoy_package_detail["package_option"]["price"],
+                    "item_name": str(decoy_data["order"]) + decoy_package_detail["package_option"]["name"],
+                    "tax": 0,
+                    "token_confirmation": decoy_package_detail["token_confirmation"],
+                })
+
             except Exception as e:
                 print_panel("⚠️ Error", f"Gagal mengambil data decoy: {e}")
                 pause()
                 return False
 
-        try:
-            target_package_detail = get_package_details(
-                api_key, tokens,
-                family_code,
-                variant_code,
-                order,
-                None,
-                None,
-            )
-        except Exception as e:
-            print_panel("⚠️ Error", f"Gagal mengambil detail paket: {e}")
-            return False
-
-        payment_items = [
-            PaymentItem(
-                item_code=target_package_detail["package_option"]["package_option_code"],
-                product_type="",
-                item_price=target_package_detail["package_option"]["price"],
-                item_name=str(order) + target_package_detail["package_option"]["name"],
-                tax=0,
-                token_confirmation=target_package_detail["token_confirmation"],
-            )
-        ]
-
-        if use_decoy and decoy_package_detail:
-            payment_items.append(
-                PaymentItem(
-                    item_code=decoy_package_detail["package_option"]["package_option_code"],
-                    product_type="",
-                    item_price=decoy_package_detail["package_option"]["price"],
-                    item_name=str(decoy_data["order"]) + decoy_package_detail["package_option"]["name"],
-                    tax=0,
-                    token_confirmation=decoy_package_detail["token_confirmation"],
-                )
-            )
-
+        # Hitung total harga
         overwrite_amount = sum(item["item_price"] for item in payment_items)
-        token_idx = 1 if decoy_type in ["xcp2", "edu"] else -1
-        pf = "SHARE_PACKAGE" if decoy_type == "edu" else "BUY_PACKAGE"
+        token_idx = 1 if use_decoy and decoy_type in ["xcp2", "edu"] else -1
+        payment_for = "SHARE_PACKAGE" if decoy_type == "edu" else "BUY_PACKAGE"
 
         try:
             res = settlement_balance(
                 api_key, tokens,
                 payment_items,
-                pf,
+                payment_for,
                 False,
                 overwrite_amount,
                 token_confirmation_idx=token_idx
@@ -524,6 +524,7 @@ def purchase_loop(
             console.print(f"[dim]Menunggu {delay} detik sebelum pembelian berikutnya...[/]")
             time.sleep(delay)
 
+    # Ringkasan
     summary_text = Text()
     summary_text.append(f"Total pembelian sukses: {len(successful_purchases)}/{loop}\n", style=theme["text_body"])
     summary_text.append(f"Family: {family_name}\n", style=theme["text_body"])
@@ -534,5 +535,4 @@ def purchase_loop(
     console.print(Panel(summary_text, title="📦 Ringkasan Pembelian", border_style=theme["border_success"], padding=(1, 2), expand=True))
     pause()
     return True
-
 

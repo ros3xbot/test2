@@ -334,7 +334,7 @@ def handle_package_interaction(api_key, tokens, package, payment_items, is_enter
                     raise ValueError
             except:
                 print_panel("❌ Error", "Input tidak valid.", theme["border_error"])
-                pause()
+                #pause()
                 continue
 
             purchase_n_times(

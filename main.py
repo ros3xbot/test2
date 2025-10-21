@@ -216,7 +216,7 @@ def show_main_menu(profile, display_quota, segments):
     menu_table.add_row("9", "🧪 Beli/Buat Paket Bundle (multi)")
     menu_table.add_row("10", "🛒 Beli Semua Paket dalam Family Code")
     menu_table.add_row("11", "🔁 Order berulang dari Family Code")
-    menu_table.add_row("12", "⭐ Family Plan/Akrab Organizer")
+    menu_table.add_row("12", "👨‍👩‍👧‍👦 Family Plan / Akrab Organizer")
     menu_table.add_row("00", "⭐ Bookmark Paket")
     menu_table.add_row("", "")
     menu_table.add_row("77", f"[{theme['border_warning']}]📢 Info Unlock Code [/]")  

@@ -322,30 +322,25 @@ def main():
             case "11":
                 clear_sc()
                 console.print(Panel(
-                    Align.center("🔁 Order Berulang dari Family Code", vertical="middle"),
+                    Align.center("🔁 Loop Pembelian Paket", vertical="middle"),
                     border_style=theme["border_info"],
                     padding=(1, 2),
                     expand=True
                 ))
-
+            
                 family_code = console.input(f"[{theme['text_sub']}]Masukkan Family Code:[/{theme['text_sub']}] ").strip()
                 if not family_code or family_code == "99":
                     print_panel("Info", "Pembelian dibatalkan.")
                     pause()
                     continue
-
-                use_decoy_input = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                use_decoy = use_decoy_input == "y"
-
-                order_input = console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip()
-                delay_input = console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip()
-                how_many_input = console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip()
-
+            
+                use_decoy = console.input(f"[{theme['text_sub']}]Gunakan paket decoy? (y/n):[/{theme['text_sub']}] ").strip().lower() == "y"
+            
                 try:
-                    order = int(order_input)
-                    delay = int(delay_input) if delay_input else 0
-                    how_many = int(how_many_input)
-
+                    order = int(console.input(f"[{theme['text_sub']}]Urutan dari list Family Code:[/{theme['text_sub']}] ").strip())
+                    delay = int(console.input(f"[{theme['text_sub']}]Delay antar pembelian (detik):[/{theme['text_sub']}] ").strip() or "0")
+                    how_many = int(console.input(f"[{theme['text_sub']}]Berapa kali ulang pembelian:[/{theme['text_sub']}] ").strip())
+            
                     confirm_text = Text.from_markup(
                         f"Family Code: [bold]{family_code}[/]\n"
                         f"Urutan: [bold]{order}[/]\n"
@@ -353,15 +348,31 @@ def main():
                         f"Delay: [bold]{delay} detik[/]\n"
                         f"Gunakan Decoy: {'Ya' if use_decoy else 'Tidak'}"
                     )
-
                     console.print(Panel(confirm_text, title="📦 Konfirmasi", border_style=theme["border_warning"], padding=(1, 2), expand=True))
-                    lanjut = console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower()
-                    if lanjut != "y":
+                    if console.input(f"[{theme['text_sub']}]Lanjutkan pembelian berulang? (y/n):[/{theme['text_sub']}] ").strip().lower() != "y":
                         print_panel("Info", "Pembelian dibatalkan.")
                         pause()
-
-                    purchase_loop(how_many, family_code, order, use_decoy, delay)
-
+                        continue
+            
+                    for i in range(how_many):
+                        console.print(Panel(
+                            f"[bold]{i+1}/{how_many}[/] - [cyan]Eksekusi pembelian...[/]",
+                            title="🔁 Loop",
+                            border_style=theme["border_info"],
+                            padding=(0, 1),
+                            expand=True
+                        ))
+                        result = purchase_loop(
+                            family_code=family_code,
+                            order=order,
+                            use_decoy=use_decoy,
+                            delay=delay,
+                            pause_on_success=True
+                        )
+                        if result is False:
+                            print_panel("⛔ Dihentikan", "Loop pembelian dihentikan oleh pengguna.")
+                            break
+            
                 except ValueError:
                     print_panel("⚠️ Error", "Input angka tidak valid.")
                     pause()

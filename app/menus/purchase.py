@@ -352,14 +352,35 @@ def purchase_n_times(
     pause()
     return True
 
+def prompt_decoy_type():
+    theme = get_theme()
+    console.print(Panel(
+        "[bold]Pilih tipe decoy yang ingin digunakan:[/]\n\n"
+        "[cyan]1.[/] Decoy XCP (default)\n"
+        "[cyan]2.[/] Decoy XCP V2 (token confirmation dari decoy)\n"
+        "[cyan]3.[/] Decoy EDU (QRIS share package)\n",
+        title="🎭 Pilihan Decoy",
+        border_style=theme.get("border_info", "cyan"),
+        padding=(1, 2),
+        expand=True
+    ))
+
+    choice = console.input(f"[{theme['text_sub']}]Masukkan pilihan (1/2/3):[/{theme['text_sub']}] ").strip()
+    if choice == "2":
+        return "xcp2"
+    elif choice == "3":
+        return "edu"
+    else:
+        return "xcp"  # default
 
 def purchase_loop(
-        loop: int,
-        family_code: str,
-        order: int,
-        use_decoy: bool,
-        delay: int = 0,
-        pause_on_success: bool = False,
+    loop: int,
+    family_code: str,
+    order: int,
+    use_decoy: bool,
+    delay: int = 0,
+    pause_on_success: bool = False,
+    decoy_type: str = "xcp"  # "xcp", "xcp2", "edu"
 ):
     theme = get_theme()
     api_key = AuthInstance.api_key
@@ -369,11 +390,18 @@ def purchase_loop(
     family_name = None
     target_variant = None
 
+    decoy_urls = {
+        "xcp": "https://me.mashu.lol/pg-decoy-xcp.json",
+        "xcp2": "https://me.mashu.lol/pg-decoy-xcp.json",
+        "edu": "https://me.mashu.lol/pg-decoy-edu.json"
+    }
+    decoy_url = decoy_urls.get(decoy_type)
+
     for i in range(loop):
         console.print(Panel(
             f"[bold]{i+1}/{loop}[/] - [cyan]Mencoba pembelian paket...[/]",
             title="🛒 Loop Pembelian",
-            border_style=theme["border_info"],
+            border_style=theme.get("border_info", "cyan"),
             padding=(0, 1),
             expand=True
         ))
@@ -407,26 +435,25 @@ def purchase_loop(
         variant_code = target_variant["package_variant_code"]
 
         decoy_package_detail = None
-        if use_decoy:
-            url = "https://me.mashu.lol/pg-decoy-xcp.json"
-            response = requests.get(url, timeout=30)
-            if response.status_code != 200:
-                print_panel("⚠️ Error", "Gagal mengambil data decoy package.")
+        if use_decoy and decoy_url:
+            try:
+                response = requests.get(decoy_url, timeout=30)
+                response.raise_for_status()
+                decoy_data = response.json()
+                decoy_package_detail = get_package_details(
+                    api_key, tokens,
+                    decoy_data["family_code"],
+                    decoy_data["variant_code"],
+                    decoy_data["order"],
+                    decoy_data["is_enterprise"],
+                    decoy_data["migration_type"],
+                )
+                balance_treshold = decoy_package_detail["package_option"]["price"]
+                print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
+            except Exception as e:
+                print_panel("⚠️ Error", f"Gagal mengambil data decoy: {e}")
                 pause()
                 return False
-
-            decoy_data = response.json()
-            decoy_package_detail = get_package_details(
-                api_key, tokens,
-                decoy_data["family_code"],
-                decoy_data["variant_code"],
-                decoy_data["order"],
-                decoy_data["is_enterprise"],
-                decoy_data["migration_type"],
-            )
-
-            balance_treshold = decoy_package_detail["package_option"]["price"]
-            print_panel("⚠️ Warning", f"Pastikan sisa balance KURANG DARI Rp {get_rupiah(balance_treshold)}")
 
         try:
             target_package_detail = get_package_details(
@@ -464,32 +491,37 @@ def purchase_loop(
                 )
             )
 
-        overwrite_amount = target_package_detail["package_option"]["price"]
-        if use_decoy and decoy_package_detail:
-            overwrite_amount += decoy_package_detail["package_option"]["price"]
+        overwrite_amount = sum(item.item_price for item in payment_items)
+        token_idx = 1 if decoy_type in ["xcp2", "edu"] else -1
+        pf = "SHARE_PACKAGE" if decoy_type == "edu" else "BUY_PACKAGE"
 
         try:
             res = settlement_balance(
                 api_key, tokens,
                 payment_items,
-                "BUY_PACKAGE",
+                pf,
                 False,
                 overwrite_amount,
+                token_confirmation_idx=token_idx
             )
 
             if res and res.get("status", "") != "SUCCESS":
                 error_msg = res.get("message", "Unknown error")
                 console.print(f"[red]Gagal: {error_msg}[/]")
                 if "Bizz-err.Amount.Total" in error_msg:
-                    valid_amount = int(error_msg.split("=")[1].strip())
-                    console.print(f"[yellow]Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}[/]")
-                    res = settlement_balance(
-                        api_key, tokens,
-                        payment_items,
-                        "BUY_PACKAGE",
-                        False,
-                        valid_amount,
-                    )
+                    try:
+                        valid_amount = int(error_msg.split("=")[1].strip())
+                        console.print(f"[yellow]Jumlah disesuaikan ke Rp {get_rupiah(valid_amount)}[/]")
+                        res = settlement_balance(
+                            api_key, tokens,
+                            payment_items,
+                            "BUY_PACKAGE",
+                            False,
+                            valid_amount,
+                            token_confirmation_idx=-1
+                        )
+                    except Exception:
+                        print_panel("⚠️ Error", "Gagal parsing fallback amount.")
 
             if res and res.get("status", "") == "SUCCESS":
                 successful_purchases.append(f"{target_variant['name']}|{option_name} - {option_price}")
@@ -523,4 +555,5 @@ def purchase_loop(
     console.print(Panel(summary_text, title="📦 Ringkasan Pembelian", border_style=theme["border_success"], padding=(1, 2), expand=True))
     pause()
     return True
+
 
